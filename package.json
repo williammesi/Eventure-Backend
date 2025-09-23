@@ -1,0 +1,23 @@
+{
+  "name": "eventure-backend",
+  "version": "1.0.0",
+  "description": "Backend pour notre application Eventure",
+  "homepage": "https://github.com/williammesi/Eventure-Backend#readme",
+  "bugs": {
+    "url": "https://github.com/williammesi/Eventure-Backend/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/williammesi/Eventure-Backend.git"
+  },
+  "license": "ISC",
+  "author": "William Mesiti, Hadrien Breton, Félix Dubé, Thomas Cliche",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}
