@@ -18,7 +18,7 @@
     "start": "node --env-file=.env server.js",
     "dev": "node --env-file=.development.env --watch server.js"
   },
-  "dependencies": {    
+  "dependencies": {
     "@faker-js/faker": "^10.0.0",
     "argon2": "^0.44.0",
     "chalk": "^5.6.2",
@@ -26,6 +26,7 @@
     "cookie-session": "^2.1.1",
     "cors": "^2.8.5",
     "dayjs": "^1.11.18",
+    "dotenv": "^17.2.2",
     "express": "^5.1.0",
     "express-jwt": "^8.5.1",
     "express-rate-limit": "^8.1.0",
@@ -34,9 +35,11 @@
     "http-errors": "^2.0.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.18.1",
+    "mysql2": "^3.15.0",
     "parse-duration": "^2.1.4",
     "qrcode": "^1.5.4",
     "random": "^5.4.1",
+    "sequelize": "^6.37.7",
     "uuid": "^13.0.0"
   }
 }

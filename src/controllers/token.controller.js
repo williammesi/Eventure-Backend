@@ -1,4 +1,3 @@
-import tokenRepository from '../repositories/token.repository.js';
 
 export default class TokenController {
     async isRevoked(token) {

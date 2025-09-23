@@ -1,17 +1,15 @@
-import mongoose from 'mongoose';
-import chalk from 'chalk';
+import { Sequelize } from 'sequelize';
+import { env } from 'node:process';
 
-export default async () => {
+const sequelize = new Sequelize(
+  env.DB_NAME,
+  env.DB_USER,
+  env.DB_PASSWORD,
+  {
+    host: env.DB_HOST,
+    dialect: 'mysql',
+    port: env.DB_PORT,
+  }
+);
 
-    const url = process.env.DATABASE;
-    console.log(chalk.green(`🧬 [MONGO] - Establish new connection with url: ${url} 🧬`));
-
-    try {
-        await mongoose.connect(url);
-        console.log(chalk.green(`🧬 [MONGO] - Connected to: ${url} 🧬`)); 
-    } catch(err) {
-        console.log(chalk.red(`🧬 [MONGO] - Cannot connect to: ${url}\n ${err} ... \n Exiting 🧬`));
-        process.exit(1);
-    }
-    
-}
+export default sequelize;
