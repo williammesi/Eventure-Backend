@@ -3,8 +3,9 @@ import jwt from 'jsonwebtoken';
 import HttpErrors from 'http-errors';
 import argon from 'argon2';
 import parseDuration from 'parse-duration';
+import Op  from 'sequelize';
 
-import { User } from '../models/User.js';
+import User from '../models/User.js';
 
 class UserRepository {
     async login(credential, password) {
@@ -29,15 +30,21 @@ class UserRepository {
         try {
             account.passwordHash = await argon.hash(account.password);
             delete account.password;
-            return Account.create(account);
+            return User.create(account);
         } catch (err) {
             throw err;
         }
     }
 
-    retrieveByCredentials(credential) {
-        return Account.findOne({ $or: [{ email: credential }, { username: credential }] });
+    async retrieveAll() {
+    return User.findAll(); // ou User.findAll() selon ton ORM
     }
+
+    retrieveByCredentials(credential) {
+        return User.findOne({ [Op.or]: [{ email: credential }, { username: credential }] });
+    }
+
+    
 
     generateJWT(uuid) {
         const access = jwt.sign({ uuid: uuid }, 
@@ -76,4 +83,4 @@ class UserRepository {
     }
 }
 
-export default new AccountRepository();
+export default new UserRepository();
