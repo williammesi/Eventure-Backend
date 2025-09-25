@@ -18,12 +18,15 @@ async function login(req, res, next) {
         const { credential, password } = req.body;
 
         let account = await userRepository.login(credential, password);
+        if (!account) {
+            throw new HttpErrors.Unauthorized('Identifiants invalides');
+        }
 
-        const tokens = userRepository.generateJWT(account.uuid);
-        
-        account = account.toObject({ getters: false, virtuals: false });
+        const tokens = userRepository.generateJWT(account._id);
+
+
+        account = account.toJSON();
         account = userRepository.transform(account);
-
 
         res.status(201).json({ account, tokens });
     } catch (err) {
