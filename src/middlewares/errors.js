@@ -1,4 +1,3 @@
-import mongoose from 'mongoose';
 import httpErrors from 'http-errors';
 
 export default (err, req, res, next) => {
@@ -10,32 +9,27 @@ export default (err, req, res, next) => {
     if (httpErrors.isHttpError(err)) {
         error.status = err.status;
     } else {
-        if (err.name === 'MongoServerError') {
+        if (err.code) {
             switch (err.code) {
-                case 11000:
+                case 'ER_DUP_ENTRY':
                     error.status = 409;
-                    if (err.keyValue) {
-                        const property = Object.keys(err.keyValue)[0];
-                        const value = err.keyValue[property];
-                        error.userMessage = `La propriété ${property} avec la valeur ${value} ne respecte pas une contrainte d'unicitié.`;
-                    } else {
-                        error.userMessage = `Une propriété ne respecte pas une contrainte d'unicitié.`;
-                    }
-            }
-        }
-
-        if (err instanceof mongoose.Error.ValidationError) {
-            error.status = 422;
-            error.userMessage = err.message;
-        } else if (err instanceof mongoose.Error.CastError) {
-            if (err.kind === 'ObjectId') {
-                error.status = 404;
-                error.developerMessage = err.stack;
+                    error.userMessage = "Une valeur unique existe déjà dans la base de données.";
+                    break;
+                case 'ER_BAD_NULL_ERROR':
+                    error.status = 400;
+                    error.userMessage = "Un champ obligatoire est manquant.";
+                    break;
+                case 'ER_NO_REFERENCED_ROW_2':
+                    error.status = 400;
+                    error.userMessage = "Une clé étrangère est invalide.";
+                    break;
+                default:
+                    error.status = 500;
             }
         }
 
         //JWT Error
-        if(err.status) {
+        if (err.status) {
             error.status = err.status;
         }
 
