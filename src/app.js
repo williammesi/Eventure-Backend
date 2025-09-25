@@ -6,6 +6,8 @@ import './models/index.js';
 import errors from './middlewares/errors.js';
 import securesRoutes from './routes/secures.routes.js';
 import limitRoute from './routes/limits.routes.js';
+import eventsRoutes from './routes/events.routes.js';
+
 
 const app = express();
 
@@ -20,6 +22,7 @@ sequelize.authenticate()
 app.get('/status', (req, res) => { res.status(200).end(); });
 app.head('/status', (req, res) => { res.status(200).end(); });
 
+app.use('/events', eventsRoutes);
 
 app.use('/secures', securesRoutes);
 
