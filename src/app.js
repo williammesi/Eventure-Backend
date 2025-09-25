@@ -3,6 +3,10 @@ import express from 'express';
 
 import sequelize from './core/database.js';
 import './models/index.js';
+import errors from './middlewares/errors.js';
+import securesRoutes from './routes/secures.routes.js';
+import limitRoute from './routes/limits.routes.js';
+import eventsRoutes from './routes/events.routes.js';
 
 
 
