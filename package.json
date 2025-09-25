@@ -15,8 +15,9 @@
   "main": "server.js",
   "type": "module",
   "scripts": {
-    "start": "node --env-file=.env server.js",
-    "dev": "node --env-file=.development.env --watch server.js"
+    "start": "node server.js",
+    "dev": "node --env-file=.development.env --watch server.js",
+    "vercel-build": "echo 'Build complete'"
   },
   "dependencies": {
     "@faker-js/faker": "^10.0.0",
