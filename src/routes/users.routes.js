@@ -23,15 +23,6 @@ async function retrieveAll(req, res, next) {
     }
 }
 
-router.post('/validate', async (req, res, next) => {
-    try {
-        const { credential, password } = req.body;
-        const user = await userRepository.login(credential, password);
-        res.status(200).json({ valid: true, user: userRepository.transform(user.toJSON()) });
-    } catch (err) {
-        // Si login échoue, on retourne valid: false
-        res.status(401).json({ valid: false, message: 'Identifiants invalides' });
-    }
-});
+
 
 export default router;
