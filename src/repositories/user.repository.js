@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import HttpErrors from 'http-errors';
 import argon from 'argon2';
 import parseDuration from 'parse-duration';
-import Op  from 'sequelize';
+import { Op } from 'sequelize';
 
 import User from '../models/User.js';
 
@@ -23,7 +23,11 @@ class UserRepository {
     }
 
     async validatePassword(password, account) {
-        return await argon.verify(account.passwordHash, password);
+        //return await argon.verify(account.passwordHash, password);
+
+        // temporaire juste le temps de voir si le mot de passe est bon
+        return account.Password === password;
+        
     }
 
     async create(account) {
