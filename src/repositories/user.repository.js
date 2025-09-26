@@ -45,7 +45,14 @@ class UserRepository {
     }
 
     retrieveByCredentials(credential) {
-        return User.findOne({ [Op.or]: [{ email: credential }, { username: credential }] });
+        return User.findOne({ 
+            where: {
+                [Op.or]: [
+                    { Email: credential }, 
+                    { Username: credential }
+                ] 
+            }
+        });
     }
 
     
