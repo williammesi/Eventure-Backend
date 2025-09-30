@@ -12,6 +12,7 @@ const router = express.Router();
 
 router.get('/', retrieveAll);
 
+router.get('/:id', retrieveById);
 
 
 async function retrieveAll(req, res, next) {
@@ -25,6 +26,20 @@ async function retrieveAll(req, res, next) {
         });
 
         res.status(200).json(events);
+    } catch (err) {
+        console.log(err);
+        return next(err);
+    }
+}
+
+async function retrieveById(req, res, next) {
+    try {
+        const id = req.params.id;
+        const event = await eventsRepository.findById(id);
+        if (!event) {
+            throw HttpErrors.NotFound();
+        }
+        res.status(200).json(event);
     } catch (err) {
         console.log(err);
         return next(err);
