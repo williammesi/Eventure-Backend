@@ -7,6 +7,8 @@ import errors from './middlewares/errors.js';
 import securesRoutes from './routes/secures.routes.js';
 import limitRoute from './routes/limits.routes.js';
 import eventsRoutes from './routes/events.routes.js';
+import usersRoutes from './routes/users.routes.js';
+import sessionsRoutes from './routes/sessions.routes.js';
 
 
 
@@ -49,6 +51,8 @@ app.get('/status', (req, res) => { res.status(200).end(); });
 app.head('/status', (req, res) => { res.status(200).end(); });
 
 app.use('/events', eventsRoutes);
+app.use('/users', usersRoutes);
+app.use('/sessions', sessionsRoutes);
 
 app.use('/secures', securesRoutes);
 
