@@ -32,16 +32,30 @@ class UserRepository {
 
     async create(account) {
         try {
-            account.passwordHash = await argon.hash(account.password);
-            delete account.password;
-            return User.create(account);
+            // Hasher le mot de passe
+            const passwordHash = await argon.hash(account.password);
+            
+            // Conversion camelCase → PascalCase pour Sequelize
+            const pascalAccount = {
+                RoleID: account.roleID,
+                Username: account.username,
+                Password: passwordHash, // 🔐 on remplace ici par le hash
+                Email: account.email,
+                ProfilePictureHref: account.profilePictureHref,
+                SecretQuestionID: account.secretQuestionID,
+                SecretQuestionAnswer: account.secretQuestionAnswer,
+                BannedUntil: account.bannedUntil || null
+            };
+
+            return await User.create(pascalAccount);
         } catch (err) {
             throw err;
         }
     }
 
+
     async retrieveAll() {
-    return User.findAll(); // ou User.findAll() selon ton ORM
+    return User.findAll();
     }
 
     retrieveByCredentials(credential) {
