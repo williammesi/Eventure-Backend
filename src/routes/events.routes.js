@@ -35,7 +35,7 @@ async function retrieveAll(req, res, next) {
 async function retrieveById(req, res, next) {
     try {
         const id = req.params.id;
-        const event = await eventsRepository.retrieveById(id);
+        const event = await eventsRepository.findById(id);
         if (!event) {
             throw HttpErrors.NotFound();
         }
