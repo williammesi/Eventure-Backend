@@ -35,16 +35,15 @@ class UserRepository {
             // Hasher le mot de passe
             const passwordHash = await argon.hash(account.password);
             
-            // Conversion camelCase → PascalCase pour Sequelize
             const pascalAccount = {
                 RoleID: account.roleID,
                 Username: account.username,
-                Password: passwordHash, // 🔐 on remplace ici par le hash
+                Password: passwordHash,
                 Email: account.email,
                 ProfilePictureHref: account.profilePictureHref,
                 SecretQuestionID: account.secretQuestionID,
                 SecretQuestionAnswer: account.secretQuestionAnswer,
-                BannedUntil: account.bannedUntil || null
+                BannedUntil: account.bannedUntil || "1970-01-01"
             };
 
             return await User.create(pascalAccount);
