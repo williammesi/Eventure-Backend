@@ -17,6 +17,7 @@ const User = sequelize.define('User', {
   },
   Username: {
     type: DataTypes.STRING(255),
+    unique: true,
     allowNull: false
   },
   Password: {
@@ -25,6 +26,7 @@ const User = sequelize.define('User', {
   },
   Email: {
     type: DataTypes.STRING(255),
+    unique: true,
     allowNull: false
   },
   ProfilePictureHref: {
