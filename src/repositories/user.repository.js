@@ -23,10 +23,10 @@ class UserRepository {
     }
 
     async validatePassword(password, account) {
-        //return await argon.verify(account.passwordHash, password);
+        return await argon.verify(account.passwordHash, password);
 
         // temporaire juste le temps de voir si le mot de passe est bon
-        return account.Password === password;
+        // return account.Password === password;
         
     }
 
