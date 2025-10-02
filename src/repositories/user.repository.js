@@ -31,27 +31,30 @@ class UserRepository {
     }
 
     async create(account) {
-        try {
-            // Hasher le mot de passe
-            const passwordHash = await argon.hash(account.password);
-            
-            // Conversion camelCase → PascalCase pour Sequelize
-            const pascalAccount = {
-                RoleID: account.roleID,
-                Username: account.username,
-                Password: passwordHash, // 🔐 on remplace ici par le hash
-                Email: account.email,
-                ProfilePictureHref: account.profilePictureHref,
-                SecretQuestionID: account.secretQuestionID,
-                SecretQuestionAnswer: account.secretQuestionAnswer,
-                BannedUntil: account.bannedUntil || null
-            };
+    try {
+        console.log("Payload reçu dans repository:", account);
 
-            return await User.create(pascalAccount);
-        } catch (err) {
-            throw err;
-        }
+        const passwordHash = await argon.hash(account.password);
+
+        const pascalAccount = {
+            RoleID: account.roleID,
+            Username: account.username,
+            Password: passwordHash,
+            Email: account.email,
+            ProfilePictureHref: account.profilePictureHref || "default.jpg",
+            SecretQuestionID: account.secretQuestionID,
+            SecretQuestionAnswer: account.secretQuestionAnswer,
+            BannedUntil: account.bannedUntil || "1970-01-01"
+        };
+
+        console.log("Objet envoyé à Sequelize:", pascalAccount);
+
+        return await User.create(pascalAccount);
+    } catch (err) {
+        throw err;
     }
+}
+
 
 
     async retrieveAll() {

@@ -15,10 +15,12 @@ router.post('/', usersValidators.postValidator(), validator, post);
 
 async function post(req, res, next) {
     try {
+        console.log("Body reçu dans le controller:", req.body);
+
         let user = await userRepository.create(req.body);
         const tokens = userRepository.generateJWT(user.uuid);
-        
-        user = user.toObject({ getters: false, virtuals: false });
+
+        user = user.toJSON();
         user = userRepository.transform(user);
 
 
@@ -27,6 +29,7 @@ async function post(req, res, next) {
         return next(err);
     }
 }
+
 
 
 
