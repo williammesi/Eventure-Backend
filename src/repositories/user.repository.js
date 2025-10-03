@@ -51,7 +51,9 @@ class UserRepository {
     }
 }
 
-
+    async retrieveById(id) {
+        return User.findByPk(id);
+    }
 
     async retrieveAll() {
     return User.findAll();

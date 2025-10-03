@@ -11,6 +11,7 @@ const router = express.Router();
 
 //router.get('/', retrieveAll);
 router.post('/', usersValidators.postValidator(), validator, post);
+router.get('/:id', retrieveById);
 
 
 async function post(req, res, next) {
@@ -49,6 +50,20 @@ async function post(req, res, next) {
 //     }
 // }
 
-
+async function retrieveById(req, res, next) {
+    try {
+        const id = req.params.id;
+        let user = await userRepository.retrieveById(id);
+        if (!user) {
+            throw HttpErrors.NotFound();
+        }
+        user = user.toJSON();
+        // TODO: user = usersRepository.transform(user, req.options);
+        res.status(200).json(user);
+    } catch (err) {
+        console.log(err);
+        return next(err);
+    }
+}
 
 export default router;
