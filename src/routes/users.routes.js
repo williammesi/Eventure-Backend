@@ -18,7 +18,20 @@ async function post(req, res, next) {
     try {
         console.log("Body reçu dans le controller:", req.body);
 
-        let user = await userRepository.create(req.body);
+        let user= await userRepository.create(req.body);
+
+
+        // TODO : Créer un client ou un organisateur selon le RoleID
+        // if (user.roleID === 1) {
+            
+        //     clientRepository.create({ UserID: user.id });
+        // }
+        // else if (user.roleID === 2) {
+        //     organizerRepository.create({ UserID: user.id });
+        // }
+
+        
+
         const tokens = userRepository.generateJWT(user.uuid);
 
         user = user.toJSON();
