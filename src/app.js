@@ -9,6 +9,7 @@ import limitRoute from './routes/limits.routes.js';
 import eventsRoutes from './routes/events.routes.js';
 import usersRoutes from './routes/users.routes.js';
 import sessionsRoutes from './routes/sessions.routes.js';
+import securityQuestionsRoutes from "./routes/securityQuestion.routes.js"
 
 
 
@@ -51,8 +52,11 @@ app.get('/status', (req, res) => { res.status(200).end(); });
 app.head('/status', (req, res) => { res.status(200).end(); });
 
 app.use('/events', eventsRoutes);
+app.use('/security-questions', securityQuestionsRoutes);
+
 app.use('/users', usersRoutes);
 app.use('/sessions', sessionsRoutes);
+
 
 app.use('/secures', securesRoutes);
 
