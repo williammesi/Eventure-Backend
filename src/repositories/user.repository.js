@@ -32,20 +32,11 @@ class UserRepository {
 
         const passwordHash = await argon.hash(account.password);
 
-        const pascalAccount = {
-            RoleID: account.roleID,
-            Username: account.username,
-            Password: passwordHash,
-            Email: account.email,
-            ProfilePictureHref: account.profilePictureHref || "default.jpg",
-            SecretQuestionID: account.secretQuestionID,
-            SecretQuestionAnswer: account.secretQuestionAnswer,
-            BannedUntil: account.bannedUntil || "1970-01-01"
-        };
+        account.password = passwordHash;
 
-        console.log("Objet envoyé à Sequelize:", pascalAccount);
+        console.log("Objet envoyé à Sequelize:", account);
 
-        return await User.create(pascalAccount);
+        return await User.create(account);
     } catch (err) {
         throw err;
     }
