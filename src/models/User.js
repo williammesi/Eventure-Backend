@@ -31,7 +31,7 @@ const User = sequelize.define('User', {
   },
   ProfilePictureHref: {
     type: DataTypes.STRING(255),
-    allowNull: false
+    allowNull: true
   },
   SecretQuestionID: {
     type: DataTypes.INTEGER,
@@ -47,7 +47,8 @@ const User = sequelize.define('User', {
   },
   BannedUntil: {
     type: DataTypes.DATE,
-    allowNull: false
+    allowNull: false,
+    defaultValue: "1970-01-01 00:00:00"
   }
 }, {
   tableName: 'Users',
