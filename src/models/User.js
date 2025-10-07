@@ -31,7 +31,8 @@ const User = sequelize.define('User', {
   },
   ProfilePictureHref: {
     type: DataTypes.STRING(255),
-    allowNull: true
+    allowNull: true,
+    defaultValue: "https://www.startpage.com/av/proxy-image?piurl=https%3A%2F%2Ftse4.mm.bing.net%2Fth%2Fid%2FOIP.SAcV4rjQCseubnk32USHigHaHx%3Fcb%3D12%26pid%3DApi&sp=1759868184T9d883262b35acaf0e56ed52fb69e6299f00d8eb03c7d7f1dcc4258b15580deb3"
   },
   SecretQuestionID: {
     type: DataTypes.INTEGER,
