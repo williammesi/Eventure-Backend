@@ -30,9 +30,9 @@ class UserRepository {
     try {
         console.log("Payload reçu dans repository:", account);
 
-        const passwordHash = await argon.hash(account.password);
+        const passwordHash = await argon.hash(account.Password);
 
-        account.password = passwordHash;
+        account.Password = passwordHash;
 
         console.log("Objet envoyé à Sequelize:", account);
 
