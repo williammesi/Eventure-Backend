@@ -20,8 +20,7 @@ async function retrieveAll(req, res, next) {
     let events = await eventsRepository.retrieveAll();
     events = events.map((e) => {
       e = e.toJSON();
-
-      // TODO: e = eventsRepository.transform(e, req.options);
+      e = eventsRepository.transform(e);
       return e;
     });
 

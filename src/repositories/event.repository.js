@@ -1,4 +1,5 @@
 import Event from '../models/Event.js';
+import Category from '../models/Category.js';
 
 class EventRepository {
   async create(eventData) {
@@ -15,7 +16,14 @@ class EventRepository {
   }
 
   async retrieveAll() {
-    return await Event.findAll();
+    return await Event.findAll({
+      include: [
+        {
+          model: Category,
+          attributes: ['Name']
+        }
+      ]
+    });
   }
 
   async update(id, eventData) {
@@ -52,6 +60,16 @@ class EventRepository {
     return await Event.findAll({
       where: { Approved: approved }
     });
+  }
+
+  transform(event) {
+    // Flatten Category to just the name and remove CategoryID
+    if (event.Category) {
+      event.Category = event.Category.Name;
+    }
+    delete event.CategoryID;
+
+    return event;
   }
 }
 
