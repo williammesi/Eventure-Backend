@@ -40,7 +40,7 @@ class EventRepository {
         },
         {
           model: User,
-          attributes: ["ID"],
+          attributes: ["ID", "Email"],
           include: [
             {
               model: Client,
@@ -49,7 +49,7 @@ class EventRepository {
             },
             {
               model: Organisation,
-              attributes: ["Name"],
+              attributes: ["Name", "PhoneNumber"],
               required: false,
             },
           ],
@@ -98,13 +98,30 @@ class EventRepository {
     delete event.CategoryID;
 
     // Transform User to Creator field
+    // Transform User to Creator
+    event.Creator = {
+      Name: "Unknown",
+      Type: "Unknown",
+      Email: "N/A",
+      PhoneNumber: null,
+    }; // Default
     if (event.User) {
       if (event.User.Organisation) {
-        event.Creator = event.User.Organisation.Name;
+        event.Creator = {
+          Type: "Organisation",
+          Name: event.User.Organisation.Name || "Unknown Organisation",
+          Email: event.User.Email || "N/A",
+          PhoneNumber: event.User.Organisation.PhoneNumber || null,
+        };
       } else if (event.User.Client) {
-        event.Creator = `${event.User.Client.FirstName} ${event.User.Client.LastName}`;
-      } else {
-        event.Creator = "Unknown";
+        event.Creator = {
+          Type: "Client",
+          Name: `${event.User.Client.FirstName || "Unknown"} ${
+            event.User.Client.LastName || "User"
+          }`,
+          Email: event.User.Email || "N/A",
+          PhoneNumber: null,
+        };
       }
       delete event.User;
     }
