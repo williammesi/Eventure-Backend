@@ -5,6 +5,9 @@ import argon from "argon2";
 import parseDuration from "parse-duration";
 import { Op } from "sequelize";
 
+import clientRepository from "./client.repository.js";
+import organisationRepository from "./organisation.repository.js";
+
 import User from "../models/User.js";
 
 class UserRepository {
@@ -51,7 +54,7 @@ class UserRepository {
           break;
 
         case 2: // Organisation
-          await organizerRepository.create({
+          await organisationRepository.create({
             UserID: user.ID,
             Name: account.Name,
             PhoneNumber: account.PhoneNumber,
