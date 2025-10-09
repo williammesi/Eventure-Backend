@@ -11,7 +11,7 @@ import { guardAuthorizationJWT, revokeAuthorization } from '../middlewares/autho
 const router = express.Router();
 
 router.post('/', login);
-router.delete('/', logout);
+router.delete('/', guardAuthorizationJWT, logout);
 
 async function login(req, res, next) {
     try {
@@ -36,7 +36,10 @@ async function login(req, res, next) {
 
 async function logout(req, res, next) {
     try {
-        //TODO:
+        // Révoque l'autorisation JWT (supprime le token côté serveur)
+        await revokeAuthorization(req);
+        
+        res.status(200).json({ message: 'Déconnexion réussie' });
     } catch (err) {
         return next(err);
     }

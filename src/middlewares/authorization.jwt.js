@@ -1,6 +1,5 @@
 import { expressjwt } from 'express-jwt';
-
-import { profileEnd } from 'console';
+import tokenRepository from '../repositories/token.repository.js';
 
 const guardAuthorizationJWT = expressjwt({
     secret: process.env.JWT_TOKEN_SECRET,
@@ -18,6 +17,22 @@ const guardRefreshTokenJWT = expressjwt({
     }
 });
 
-const revokeAuthorization = {};
+const revokeAuthorization = async (req) => {
+    const token = req.headers.authorization?.split(' ')[1];
+    
+    if (token) {
+        await tokenRepository.invalidate(token);
+    }
+};
 
-export { guardAuthorizationJWT, guardRefreshTokenJWT, revokeAuthorization };
+const checkTokenBlacklist = async (req, res, next) => {
+    const token = req.headers.authorization?.split(' ')[1];
+    
+    if (token && await tokenRepository.isRevoked(token)) {
+        return res.status(401).json({ message: 'Token révoqué' });
+    }
+    
+    next();
+};
+
+export { guardAuthorizationJWT, guardRefreshTokenJWT, revokeAuthorization, checkTokenBlacklist };
