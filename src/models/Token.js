@@ -2,21 +2,15 @@ import { DataTypes } from 'sequelize';
 import sequelize from '../core/database.js';
 
 const Token = sequelize.define('Token', {
-    id: {
-        type: DataTypes.INTEGER,
-        primaryKey: true,
-        autoIncrement: true
-    },
-    token: {
+    Token: {
         type: DataTypes.STRING(500),
         allowNull: false,
-        unique: true
+        unique: true,
+        primaryKey: true // Le token devient la clé primaire
     }
 }, {
     tableName: 'Tokens',
-    timestamps: true,
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
+    timestamps: false // Pas de createdAt/updatedAt
 });
 
 export default Token;
