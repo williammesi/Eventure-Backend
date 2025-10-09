@@ -90,6 +90,8 @@ class EventRepository {
         event.Creator = event.User.Organisation.Name;
       } else if (event.User.Client) {
         event.Creator = `${event.User.Client.FirstName} ${event.User.Client.LastName}`;
+      } else {
+        event.Creator = "Unknown";
       }
       delete event.User;
     }
