@@ -83,6 +83,11 @@ FollowedEvent.belongsTo(User, { foreignKey: 'UserID' });
 FollowedOrganisation.belongsTo(User, { foreignKey: 'OrganisationID', as: 'Organisation' });
 FollowedOrganisation.belongsTo(User, { foreignKey: 'UserID', as: 'Follower' });
 
+Organisation.belongsTo(User, {
+  foreignKey: 'UserID',
+  as: 'user'
+});
+
 export {
   sequelize,
   User,

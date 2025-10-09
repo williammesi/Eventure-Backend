@@ -12,6 +12,7 @@ const router = express.Router();
 //router.get('/', retrieveAll);
 router.post('/', usersValidators.postValidator(), validator, post);
 router.get('/:id', retrieveById);
+router.get('/organisation/:id', retrieveAnOrganisationById);
 
 
 async function post(req, res, next) {
@@ -52,7 +53,7 @@ async function post(req, res, next) {
 //         let users = await userRepository.retrieveAll();
 //         users = users.map(u => {
 //             u = u.toJSON();
-//             // TODO: u = usersRepository.transform(u, req.options);
+//             TODO: u = usersRepository.transform(u, req.options);
 //             return u;
 //         });
 
@@ -73,6 +74,21 @@ async function retrieveById(req, res, next) {
         user = user.toJSON();
         // TODO: user = usersRepository.transform(user, req.options);
         res.status(200).json(user);
+    } catch (err) {
+        console.log(err);
+        return next(err);
+    }
+}
+
+async function retrieveAnOrganisationById(req, res, next) {
+    try {
+        const id = req.params.id;
+        let organisation = await userRepository.retrieveAnOrganisationById(id);
+        if (!organisation) {
+            throw HttpErrors.NotFound();
+        }
+        organisation = organisation.toJSON();
+        res.status(200).json(organisation);
     } catch (err) {
         console.log(err);
         return next(err);

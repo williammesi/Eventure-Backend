@@ -6,6 +6,7 @@ import parseDuration from 'parse-duration';
 import { Op } from 'sequelize';
 
 import User from '../models/User.js';
+import Organisation from '../models/Organisation.js';
 
 class UserRepository {
     async login(credential, password) {
@@ -46,10 +47,6 @@ class UserRepository {
         return User.findByPk(id);
     }
 
-    async retrieveAll() {
-    return User.findAll();
-    }
-
     retrieveByCredentials(credential) {
         return User.findOne({ 
             where: {
@@ -61,7 +58,16 @@ class UserRepository {
         });
     }
 
-    
+   async retrieveAnOrganisationById(userId) {
+        return await Organisation.findOne({
+            where: { UserID: userId },
+            include: [{
+                model: User,
+                as: 'user',
+                attributes: ['ID', 'Username', 'Email', 'ProfilePictureHref']
+            }]
+        });
+    }
 
     generateJWT(uuid) {
         const access = jwt.sign({ uuid: uuid }, 
