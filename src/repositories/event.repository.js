@@ -1,3 +1,4 @@
+import "../models/index.js";
 import Event from "../models/Event.js";
 import Category from "../models/Category.js";
 import User from "../models/User.js";
@@ -92,6 +93,7 @@ class EventRepository {
       }
       delete event.User;
     }
+    delete event.UserID;
 
     return event;
   }
