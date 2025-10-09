@@ -23,33 +23,20 @@ class UserRepository {
     }
 
     async validatePassword(password, account) {
-        //return await argon.verify(account.passwordHash, password);
-
-        // temporaire juste le temps de voir si le mot de passe est bon
-        return account.Password === password;
-        
+        return await argon.verify(account.Password, password);
     }
 
     async create(account) {
     try {
         console.log("Payload reçu dans repository:", account);
 
-        const passwordHash = await argon.hash(account.password);
+        const passwordHash = await argon.hash(account.Password);
 
-        const pascalAccount = {
-            RoleID: account.roleID,
-            Username: account.username,
-            Password: passwordHash,
-            Email: account.email,
-            ProfilePictureHref: account.profilePictureHref || "default.jpg",
-            SecretQuestionID: account.secretQuestionID,
-            SecretQuestionAnswer: account.secretQuestionAnswer,
-            BannedUntil: account.bannedUntil || "1970-01-01"
-        };
+        account.Password = passwordHash;
 
-        console.log("Objet envoyé à Sequelize:", pascalAccount);
+        console.log("Objet envoyé à Sequelize:", account);
 
-        return await User.create(pascalAccount);
+        return await User.create(account);
     } catch (err) {
         throw err;
     }

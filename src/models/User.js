@@ -17,6 +17,7 @@ const User = sequelize.define('User', {
   },
   Username: {
     type: DataTypes.STRING(255),
+    unique: true,
     allowNull: false
   },
   Password: {
@@ -25,11 +26,13 @@ const User = sequelize.define('User', {
   },
   Email: {
     type: DataTypes.STRING(255),
+    unique: true,
     allowNull: false
   },
   ProfilePictureHref: {
     type: DataTypes.STRING(255),
-    allowNull: false
+    allowNull: true,
+    defaultValue: "https://www.startpage.com/av/proxy-image?piurl=https%3A%2F%2Ftse4.mm.bing.net%2Fth%2Fid%2FOIP.SAcV4rjQCseubnk32USHigHaHx%3Fcb%3D12%26pid%3DApi&sp=1759868184T9d883262b35acaf0e56ed52fb69e6299f00d8eb03c7d7f1dcc4258b15580deb3"
   },
   SecretQuestionID: {
     type: DataTypes.INTEGER,
@@ -45,7 +48,8 @@ const User = sequelize.define('User', {
   },
   BannedUntil: {
     type: DataTypes.DATE,
-    allowNull: false
+    allowNull: false,
+    defaultValue: "1970-01-01 00:00:00"
   }
 }, {
   tableName: 'Users',
