@@ -1,9 +1,11 @@
 import "../models/index.js";
 import Event from "../models/Event.js";
 import Category from "../models/Category.js";
+import Location from "../models/Location.js";
 import User from "../models/User.js";
 import Client from "../models/Client.js";
 import Organisation from "../models/Organisation.js";
+import geocodingService from "../services/geocoding.service.js";
 
 class EventRepository {
   async create(eventData) {
@@ -24,6 +26,17 @@ class EventRepository {
         {
           model: Category,
           attributes: ["Name"],
+        },
+        {
+          model: Location,
+          attributes: [
+            "Adress",
+            "City",
+            "Province",
+            "Country",
+            "Latitude",
+            "Longitude",
+          ],
         },
         {
           model: User,
@@ -77,7 +90,7 @@ class EventRepository {
     });
   }
 
-  transform(event) {
+  async transform(event) {
     // Flatten Category to just the name and remove CategoryID
     if (event.Category) {
       event.Category = event.Category.Name;
@@ -96,6 +109,18 @@ class EventRepository {
       delete event.User;
     }
     delete event.UserID;
+
+    if (event.Location) {
+      event.Location = {
+        Street: event.Location.Adress,
+        City: event.Location.City,
+        Province: event.Location.Province,
+        Country: event.Location.Country,
+        Latitude: event.Location.Latitude,
+        Longitude: event.Location.Longitude,
+      };
+    }
+    delete event.LocationID;
 
     return event;
   }

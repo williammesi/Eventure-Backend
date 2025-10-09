@@ -1,17 +1,16 @@
-import cors from 'cors';
-import express from 'express';
+import cors from "cors";
+import express from "express";
 
-import sequelize from './core/database.js';
-import './models/index.js';
-import errors from './middlewares/errors.js';
-import securesRoutes from './routes/secures.routes.js';
-import limitRoute from './routes/limits.routes.js';
-import eventsRoutes from './routes/events.routes.js';
-import usersRoutes from './routes/users.routes.js';
-import sessionsRoutes from './routes/sessions.routes.js';
-import securityQuestionsRoutes from "./routes/securityQuestion.routes.js"
-
-
+import sequelize from "./core/database.js";
+import "./models/index.js";
+import errors from "./middlewares/errors.js";
+import securesRoutes from "./routes/secures.routes.js";
+import limitRoute from "./routes/limits.routes.js";
+import eventsRoutes from "./routes/events.routes.js";
+import usersRoutes from "./routes/users.routes.js";
+import sessionsRoutes from "./routes/sessions.routes.js";
+import securityQuestionsRoutes from "./routes/securityQuestion.routes.js";
+import locationRoutes from "./routes/locations.routes.js";
 
 const app = express();
 
@@ -19,13 +18,14 @@ app.use(cors());
 app.use(express.json());
 
 // Test database connection
-sequelize.authenticate()
-  .then(() => console.log('Database connected successfully'))
-  .catch(err => console.error('Database connection error:', err));
+sequelize
+  .authenticate()
+  .then(() => console.log("Database connected successfully"))
+  .catch((err) => console.error("Database connection error:", err));
 
-  // Home route - HTML
-app.get('/', (req, res) => {
-  res.type('html').send(`
+// Home route - HTML
+app.get("/", (req, res) => {
+  res.type("html").send(`
     <!doctype html>
     <html>
       <head>
@@ -45,20 +45,24 @@ app.get('/', (req, res) => {
         <img src="/logo.png" alt="Logo" width="120" />
       </body>
     </html>
-  `)
-})
+  `);
+});
 
-app.get('/status', (req, res) => { res.status(200).end(); });
-app.head('/status', (req, res) => { res.status(200).end(); });
+app.get("/status", (req, res) => {
+  res.status(200).end();
+});
+app.head("/status", (req, res) => {
+  res.status(200).end();
+});
 
-app.use('/events', eventsRoutes);
-app.use('/security-questions', securityQuestionsRoutes);
+app.use("/events", eventsRoutes);
+app.use("/security-questions", securityQuestionsRoutes);
 
-app.use('/users', usersRoutes);
-app.use('/sessions', sessionsRoutes);
+app.use("/users", usersRoutes);
+app.use("/sessions", sessionsRoutes);
+app.use("/locations", locationRoutes);
 
-
-app.use('/secures', securesRoutes);
+app.use("/secures", securesRoutes);
 
 app.use(limitRoute);
 app.use(errors);
