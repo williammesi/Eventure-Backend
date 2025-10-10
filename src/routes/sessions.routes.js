@@ -3,11 +3,10 @@ import HttpErrors from 'http-errors';
 import { expressjwt } from 'express-jwt';
 
 import userRepository from '../repositories/user.repository.js';
+import tokenRepository from '../repositories/token.repository.js';
 
 import TokenController from '../controllers/token.controller.js';
 const tokenController = new TokenController();
-
-import revokeAuthorization from '../middlewares/authorization.jwt.js';
 
 const router = express.Router();
 
@@ -20,7 +19,7 @@ const guardLogout = expressjwt({
 });
 
 router.post('/', login);
-router.delete('/', guardLogout,revokeAuthorization, logout);
+router.delete('/', guardLogout, logout);
 
 async function login(req, res, next) {
     try {
@@ -45,9 +44,15 @@ async function login(req, res, next) {
 
 async function logout(req, res, next) {
     try {
-        await tokenController.invalidate(req.body.refreshToken);
-        res.status(204).end();
-
+        // Extraire le token depuis l'header Authorization
+        const token = req.headers.authorization?.split(' ')[1];
+        
+        if (token) {
+            // Ajouter le token à la blacklist en BD
+            await tokenRepository.invalidate(token);
+        }
+        
+        res.status(200).json({ message: 'Déconnexion réussie - Token révoqué' });
     } catch (err) {
         return next(err);
     }
