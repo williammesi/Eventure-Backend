@@ -5,7 +5,7 @@ const { body } = expressValidator;
 class UsersValidators {
     postValidator() {
         return [
-            body('username')
+            body('Username')
                 .exists()
                 .notEmpty()
                 .withMessage('Username is required')
@@ -13,7 +13,7 @@ class UsersValidators {
                 .isString()
                 .isLength({ min: 3, max: 255 })
                 .withMessage('Username must be between 3 and 255 characters long'),
-            body('password')
+            body('Password')
                 .exists()
                 .notEmpty()
                 .withMessage('Password is required')
@@ -21,7 +21,7 @@ class UsersValidators {
                 .isString()
                 .isLength({ min: 6, max: 255 })
                 .withMessage('Password must be between 6 and 255 characters long'),
-            body('email')
+            body('Email')
                 .exists()
                 .notEmpty()
                 .withMessage('Email is required')
@@ -30,21 +30,21 @@ class UsersValidators {
                 .withMessage('Email not in valid format')
                 .isLength({ max: 255 })
                 .withMessage('Email must be less than 255 characters'),
-            body('roleID')
+            body('RoleID')
                 .exists()
                 .notEmpty()
                 .withMessage('Role ID is required')
                 .bail()
                 .isInt({ min: 1 })
                 .withMessage('Role ID must be a positive integer'),
-            body('secretQuestionID')
+            body('SecretQuestionID')
                 .exists()
                 .notEmpty()
                 .withMessage('Secret Question ID is required')
                 .bail()
                 .isInt({ min: 1 })
                 .withMessage('Secret Question ID must be a positive integer'),
-            body('secretQuestionAnswer')
+            body('SecretQuestionAnswer')
                 .exists()
                 .notEmpty()
                 .withMessage('Secret Question Answer is required')
@@ -52,12 +52,12 @@ class UsersValidators {
                 .isString()
                 .isLength({ min: 1, max: 255 })
                 .withMessage('Secret Question Answer must be between 1 and 255 characters long'),
-            body('profilePictureHref')
+            body('ProfilePictureHref')
                 .optional()
                 .isString()
                 .isLength({ max: 255 })
                 .withMessage('Profile Picture URL must be less than 255 characters'),
-            body('bannedUntil')
+            body('BannedUntil')
                 .optional()
                 .isISO8601()
                 .withMessage('Banned Until must be a valid date (YYYY-MM-DD)')
