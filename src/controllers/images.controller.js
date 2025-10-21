@@ -28,7 +28,8 @@ export const uploadImage = async (req, res) => {
 
     const blob = await put(filename, req.file.buffer, {
       access: 'public',
-      token: process.env.BLOB_READ_WRITE_TOKEN
+      token: process.env.BLOB_READ_WRITE_TOKEN,
+      allowOverwrite: true
     });
 
     console.log('Upload successful:', blob.url);
