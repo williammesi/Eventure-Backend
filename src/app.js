@@ -11,6 +11,7 @@ import usersRoutes from "./routes/users.routes.js";
 import sessionsRoutes from "./routes/sessions.routes.js";
 import securityQuestionsRoutes from "./routes/securityQuestion.routes.js";
 import locationRoutes from "./routes/locations.routes.js";
+import imagesRoutes from "./routes/images.routes.js";
 
 const app = express();
 
@@ -61,6 +62,7 @@ app.use("/security-questions", securityQuestionsRoutes);
 app.use("/users", usersRoutes);
 app.use("/sessions", sessionsRoutes);
 app.use("/locations", locationRoutes);
+app.use("/images", imagesRoutes);
 
 app.use("/secures", securesRoutes);
 
