@@ -19,7 +19,15 @@ const upload = multer({
 });
 
 // Protected routes - require authentication
-router.post('/upload', guardAuthorizationJWT, upload.single('image'), uploadImage);
+router.post('/upload', guardAuthorizationJWT, upload.single('image'), (err, req, res, next) => {
+  // Multer error handler
+  if (err) {
+    console.error('Multer error:', err);
+    return res.status(400).json({ error: err.message });
+  }
+  next();
+}, uploadImage);
+
 router.delete('/:pathname', guardAuthorizationJWT, deleteImage);
 
 export default router;
