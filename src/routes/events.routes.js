@@ -18,12 +18,13 @@ router.get("/:id", retrieveById);
 async function retrieveAll(req, res, next) {
   try {
     let events = await eventsRepository.retrieveAll();
-    events = events.map((e) => {
-      e = e.toJSON();
-
-      // TODO: e = eventsRepository.transform(e, req.options);
-      return e;
-    });
+    events = await Promise.all(
+      events.map(async (e) => {
+        e = e.toJSON();
+        e = await eventsRepository.transform(e);
+        return e;
+      })
+    );
 
     res.status(200).json(events);
   } catch (err) {

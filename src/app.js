@@ -9,6 +9,9 @@ import limitRoute from "./routes/limits.routes.js";
 import eventsRoutes from "./routes/events.routes.js";
 import usersRoutes from "./routes/users.routes.js";
 import sessionsRoutes from "./routes/sessions.routes.js";
+import securityQuestionsRoutes from "./routes/securityQuestion.routes.js";
+import locationRoutes from "./routes/locations.routes.js";
+import imagesRoutes from "./routes/images.routes.js";
 import categoriesRoutes from "./routes/categories.routes.js";
 
 const app = express();
@@ -55,9 +58,13 @@ app.head("/status", (req, res) => {
 });
 
 app.use("/events", eventsRoutes);
+app.use("/security-questions", securityQuestionsRoutes);
+app.use("/categories", categoriesRoutes);
+
 app.use("/users", usersRoutes);
 app.use("/sessions", sessionsRoutes);
-app.use("/categories", categoriesRoutes);
+app.use("/locations", locationRoutes);
+app.use("/images", imagesRoutes);
 
 app.use("/secures", securesRoutes);
 

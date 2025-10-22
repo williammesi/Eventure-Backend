@@ -1,110 +1,125 @@
-import crypto from 'crypto';
-import jwt from 'jsonwebtoken';
-import HttpErrors from 'http-errors';
-import argon from 'argon2';
-import parseDuration from 'parse-duration';
-import { Op } from 'sequelize';
+import crypto from "crypto";
+import jwt from "jsonwebtoken";
+import HttpErrors from "http-errors";
+import argon from "argon2";
+import parseDuration from "parse-duration";
+import { Op } from "sequelize";
 
-import User from '../models/User.js';
+import clientRepository from "./client.repository.js";
+import organisationRepository from "./organisation.repository.js";
+
+import User from "../models/User.js";
 
 class UserRepository {
-    async login(credential, password) {
-        const account = await this.retrieveByCredentials(credential);
-        if (!account) {
-            //Email ou Username non présent en base de données
-            throw HttpErrors.Unauthorized();
-        }
-
-        if (!(await this.validatePassword(password, account))) {
-            throw HttpErrors.Unauthorized();
-        }
-
-        return account;
+  async login(credential, password) {
+    const account = await this.retrieveByCredentials(credential);
+    if (!account) {
+      //Email ou Username non présent en base de données
+      throw HttpErrors.Unauthorized();
     }
 
-    async validatePassword(password, account) {
-        return await argon.verify(account.Password, password);
+    if (!(await this.validatePassword(password, account))) {
+      throw HttpErrors.Unauthorized();
     }
 
-    async create(account) {
+    return account;
+  }
+
+  async validatePassword(password, account) {
+    return await argon.verify(account.Password, password);
+  }
+
+  async create(account) {
     try {
-        console.log("Payload reçu dans repository:", account);
+      console.log("Payload reçu dans repository:", account);
 
-        const passwordHash = await argon.hash(account.password);
+      // 1. Hash password
+      const passwordHash = await argon.hash(account.Password);
+      account.Password = passwordHash;
 
-        const pascalAccount = {
-            RoleID: account.roleID,
-            Username: account.username,
-            Password: passwordHash,
-            Email: account.email,
-            ProfilePictureHref: account.profilePictureHref || "default.jpg",
-            SecretQuestionID: account.secretQuestionID,
-            SecretQuestionAnswer: account.secretQuestionAnswer,
-            BannedUntil: account.bannedUntil || "1970-01-01"
-        };
+      console.log("Objet envoyé à Sequelize:", account);
 
-        console.log("Objet envoyé à Sequelize:", pascalAccount);
+      // 2. Create user record
+      const user = await User.create(account);
 
-        return await User.create(pascalAccount);
+      // 3. Create profile based on role
+      switch (user.RoleID) {
+        case 1: // Client
+          await clientRepository.create({
+            UserID: user.ID,
+            FirstName: account.FirstName,
+            LastName: account.LastName,
+            DateOfBirth: account.DateOfBirth,
+          });
+          break;
+
+        case 2: // Organisation
+          await organisationRepository.create({
+            UserID: user.ID,
+            Name: account.Name,
+            PhoneNumber: account.PhoneNumber,
+            Certified: false, // Default value
+          });
+          break;
+
+        default:
+          // Admin or other role - no profile needed
+          break;
+      }
+
+      // 4. Return the user (not the profile)
+      return user;
     } catch (err) {
-        throw err;
+      console.error("Error in user repository create:", err);
+      throw err;
     }
-}
+  }
 
+  async retrieveById(id) {
+    return User.findByPk(id);
+  }
 
-
-    async retrieveAll() {
+  async retrieveAll() {
     return User.findAll();
-    }
+  }
 
-    retrieveByCredentials(credential) {
-        return User.findOne({ 
-            where: {
-                [Op.or]: [
-                    { Email: credential }, 
-                    { Username: credential }
-                ] 
-            }
-        });
-    }
+  retrieveByCredentials(credential) {
+    return User.findOne({
+      where: {
+        [Op.or]: [{ Email: credential }, { Username: credential }],
+      },
+    });
+  }
 
-    
+  generateJWT(uuid) {
+    const access = jwt.sign({ uuid: uuid }, process.env.JWT_TOKEN_SECRET, {
+      expiresIn: process.env.JWT_TOKEN_LIFE,
+      issuer: process.env.BASE_URL,
+    });
+    const refresh = jwt.sign({ uuid }, process.env.JWT_REFRESH_SECRET, {
+      expiresIn: process.env.JWT_REFRESH_LIFE,
+      issuer: process.env.BASE_URL,
+    });
+    const expiresIn = parseDuration(process.env.JWT_TOKEN_LIFE);
 
-    generateJWT(uuid) {
-        const access = jwt.sign({ uuid: uuid }, 
-            process.env.JWT_TOKEN_SECRET, 
-            {
-                expiresIn: process.env.JWT_TOKEN_LIFE,
-                issuer: process.env.BASE_URL
-            }
-        );
-        const refresh = jwt.sign({ uuid },
-            process.env.JWT_REFRESH_SECRET,
-            {
-                expiresIn: process.env.JWT_REFRESH_LIFE,
-                issuer: process.env.BASE_URL
-            }
-        );
-        const expiresIn = parseDuration(process.env.JWT_TOKEN_LIFE);
+    return { access, refresh, expiresIn };
+  }
 
-        return { access, refresh, expiresIn };
-    }
+  async validateRefreshToken(email, headerBase64) {
+    //TODO:
+  }
 
-    async validateRefreshToken(email, headerBase64) {
-        //TODO:
-    }
+  transform(account) {
+    account.href = `${process.env.BASE_URL}/accounts/${account.uuid}`;
 
-    transform(account) {
-        account.href = `${process.env.BASE_URL}/accounts/${account.uuid}`;
+    delete account._id;
+    delete account.__v;
+    delete account.uuid;
+    delete account.password;
+    delete account.passwordHash;
 
-        delete account._id;
-        delete account.__v;
-        delete account.uuid;
-        delete account.password;
-        delete account.passwordHash;
-
-        return account;
-    }
+    return account;
+  }
 }
 
 export default new UserRepository();
