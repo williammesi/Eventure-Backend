@@ -1,4 +1,5 @@
 import express from "express";
+import categoryRepository from "../repositories/category.repository.js";
 
 const router = express.Router();
 
@@ -6,17 +7,19 @@ router.get("/", retrieveAll);
 
 async function retrieveAll(req, res, next) {
   try {
-    let events = await eventsRepository.retrieveAll();
-    events = events.map((e) => {
-      e = e.toJSON();
+    let categories = await categoryRepository.retrieveAll();
+    categories = categories.map((c) => {
+      c = c.toJSON();
 
-      // TODO: e = eventsRepository.transform(e, req.options);
-      return e;
+      // TODO: c = category.Repository.transform(c, req.options);
+      return c;
     });
 
-    res.status(200).json(events);
+    res.status(200).json(categories);
   } catch (err) {
     console.log(err);
     return next(err);
   }
 }
+
+export default router;
