@@ -6,11 +6,12 @@ import validator from "../middlewares/validator.js";
 import eventsRepository from "../repositories/event.repository.js";
 
 import { guardAuthorizationJWT } from "../middlewares/authorization.jwt.js";
+import eventsValidator from "../validators/events.validator.js";
 
 const router = express.Router();
 
 router.get("/", retrieveAll);
-router.post("/events", create);
+router.post("/events", eventsValidator.postValidator(), create);
 
 router.get("/:id", retrieveById);
 
