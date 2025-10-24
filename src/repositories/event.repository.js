@@ -10,6 +10,17 @@ import geocodingService from "../services/geocoding.service.js";
 class EventRepository {
   async create(eventData) {
     try {
+      location = await Location.findOrCreate({
+        where: {
+          Adress: eventData.Adress,
+          City: eventData.City,
+          Province: eventData.Province,
+          Country: eventData.Country,
+          Latitude: eventData.Latitude,
+          Longitude: eventData.Longitude,
+        },
+      });
+      eventData.LocationID = location.ID;
       return await Event.create(eventData);
     } catch (error) {
       throw error;
