@@ -1,6 +1,10 @@
 import { Router } from "express";
 import multer from "multer";
-import { uploadImage, deleteImage } from "../controllers/images.controller.js";
+import {
+  uploadImage,
+  deleteImage,
+  uploadEventImages,
+} from "../controllers/images.controller.js";
 import { guardAuthorizationJWT } from "../middlewares/authorization.jwt.js";
 import imageRepository from "../repositories/image.repository.js";
 
