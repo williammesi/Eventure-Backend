@@ -8,7 +8,7 @@ router.get("/", retrieveAll);
 async function retrieveAll(req, res, next) {
   try {
     let categories = await categoryRepository.retrieveAll();
-    categories = categories.map((c) => {
+    categories.map((c) => {
       c = c.toJSON();
 
       // TODO: c = category.Repository.transform(c, req.options);

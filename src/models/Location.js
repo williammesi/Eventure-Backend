@@ -9,6 +9,7 @@ const Location = sequelize.define(
       primaryKey: true,
       autoIncrement: true,
     },
+    //Ça s'écrit "Address"
     Adress: {
       type: DataTypes.STRING(255),
       allowNull: false,
