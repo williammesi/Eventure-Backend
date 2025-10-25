@@ -49,7 +49,8 @@ async function retrieveById(req, res, next) {
 
 async function create(req, res, next) {
   try {
-    let newEvent = await eventsRepository.create(req.body);
+    const newEvent = await eventsRepository.create(req.body);
+    console.log(newEvent);
 
     if (req.query._body === "false") {
       return res.status(204).end();

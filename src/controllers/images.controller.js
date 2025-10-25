@@ -4,19 +4,19 @@ import ImageRepository from "../repositories/image.repository.js";
 export const uploadEventImages = async (req, res) => {
   try {
     console.log("Upload request received");
-    console.log("req.images:", req.images);
+    console.log("req.files:", req.files);
     console.log("req.body:", req.body);
 
-    if (!req.images) {
+    if (!req.files) {
       console.log("No file in request");
       return res.status(400).json({ error: "No file uploaded" });
     }
 
     let responseData = [];
-    for (let i = 0; i < req.images.length; i++) {
-      const image = req.images[i];
+    for (let i = 0; i < req.files.length; i++) {
+      const image = req.files[i];
 
-      const { imageName } = `${req.eventId}-${i}.${image.type}`;
+      const imageName = `${req.body.eventId}-${i}.jpg`;
 
       if (!imageName) {
         console.log("No imageName in request body");
