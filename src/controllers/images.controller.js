@@ -16,7 +16,7 @@ export const uploadEventImages = async (req, res) => {
     for (let i = 0; i < req.files.length; i++) {
       const image = req.files[i];
 
-      const imageName = `${req.body.eventId}-${i}.jpg`;
+      const imageName = `event${req.body.eventId}-${i + 1}.jpg`;
 
       if (!imageName) {
         console.log("No imageName in request body");
@@ -38,13 +38,13 @@ export const uploadEventImages = async (req, res) => {
       });
 
       if (i == req.thumbnailIndex) {
-        imageRepository.create({
+        ImageRepository.create({
           EventId: req.eventId,
           Href: filename,
           isThumbnail: true,
         });
       } else {
-        imageRepository.create({
+        ImageRepository.create({
           EventId: req.eventId,
           Href: filename,
           isThumbnail: false,
@@ -58,7 +58,7 @@ export const uploadEventImages = async (req, res) => {
         pathname: blob.pathname,
       });
     }
-    res.json(responseData);
+    res.status(201).json(responseData);
   } catch (error) {
     console.error("Upload error:", error);
     res.status(500).json({ error: error.message });
