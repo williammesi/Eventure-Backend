@@ -139,7 +139,7 @@ class EventRepository {
       }
       delete event.User;
     }
-    delete event.UserID;
+    
 
     if (event.Location) {
       event.Location = {
