@@ -1,0 +1,22 @@
+meta {
+  name: Create user
+  type: http
+  seq: 1
+}
+
+post {
+  url: https://eventure-backend-pi.vercel.app/users
+  body: json
+  auth: inherit
+}
+
+body:json {
+    {
+      "Username": "mod1",
+      "Password": "mod123456",
+      "Email": "john.doe@example.com",
+      "RoleID": 3,
+      "SecretQuestionID": 1,
+      "SecretQuestionAnswer": "Arc-en-ciel"
+    }
+}
