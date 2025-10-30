@@ -53,9 +53,10 @@ async function retrieveById(req, res, next) {
       throw HttpErrors.NotFound();
     }
     user = user.toJSON();
-    user = await userRepository.transform(user);
     // TODO: user = usersRepository.transform(user, req.options);
     res.status(200).json(user);
+    user = await userRepository.transform(user);
+
   } catch (err) {
     console.log(err);
     return next(err);
