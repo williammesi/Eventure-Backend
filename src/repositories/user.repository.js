@@ -109,13 +109,13 @@ class UserRepository {
     //TODO:
   }
 
-  async transform(account) {
-    account.href = `${process.env.BASE_URL}/accounts/${account.uuid}`;
+  async transform(user) {
+    user.href = `${process.env.BASE_URL}/users/${user.ID}`;
 
-    if (account.RoleID === 2) {
-      const organisation = await organisationRepository.findByUserId(account.UserID);
+    if (user.RoleID === 2) {
+      const organisation = await organisationRepository.findByUserId(user.ID);
       if (organisation) {
-        account.organisation = {
+        user.organisation = {
           Name: organisation.Name,
           Certified: organisation.Certified,
           PhoneNumber: organisation.PhoneNumber,
@@ -123,13 +123,13 @@ class UserRepository {
       }
     }
 
-    delete account._id;
-    delete account.__v;
-    delete account.uuid;
-    delete account.password;
-    delete account.passwordHash;
+    delete user._id;
+    delete user.__v;
+    delete user.uuid;
+    delete user.Password;
+    delete user.PasswordHash;
 
-    return account;
+    return user;
   }
 }
 
