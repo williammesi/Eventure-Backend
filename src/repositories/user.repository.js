@@ -114,9 +114,13 @@ class UserRepository {
 
     if (account.RoleID === 2) {
       const organisation = await organisationRepository.findByUserId(account.ID);
-      account.organisation.Name = organisation.Name;
-      account.organisation.Certified = organisation.Certified;
-      account.organisation.PhoneNumber = organisation.PhoneNumber;
+      if (organisation) {
+        account.organisation = {
+          Name: organisation.Name,
+          Certified: organisation.Certified,
+          PhoneNumber: organisation.PhoneNumber,
+        };
+      }
     }
 
     delete account._id;
