@@ -12,52 +12,52 @@ import User from "../models/User.js";
 
 class UserRepository {
   async login(credential, password) {
-    const account = await this.retrieveByCredentials(credential);
-    if (!account) {
+    const user = await this.retrieveByCredentials(credential);
+    if (!user) {
       //Email ou Username non présent en base de données
       throw HttpErrors.Unauthorized();
     }
 
-    if (!(await this.validatePassword(password, account))) {
+    if (!(await this.validatePassword(password, user))) {
       throw HttpErrors.Unauthorized();
     }
 
-    return account;
+    return user;
   }
 
-  async validatePassword(password, account) {
-    return await argon.verify(account.Password, password);
+  async validatePassword(password, user) {
+    return await argon.verify(user.Password, password);
   }
 
-  async create(account) {
+  async create(user) {
     try {
-      console.log("Payload reçu dans repository:", account);
+      console.log("Payload reçu dans repository:", user);
 
       // 1. Hash password
-      const passwordHash = await argon.hash(account.Password);
-      account.Password = passwordHash;
+      const passwordHash = await argon.hash(user.Password);
+      user.Password = passwordHash;
 
-      console.log("Objet envoyé à Sequelize:", account);
+      console.log("Objet envoyé à Sequelize:", user);
 
       // 2. Create user record
-      const user = await User.create(account);
+      const user = await User.create(user);
 
       // 3. Create profile based on role
       switch (user.RoleID) {
         case 1: // Client
           await clientRepository.create({
             UserID: user.ID,
-            FirstName: account.FirstName,
-            LastName: account.LastName,
-            DateOfBirth: account.DateOfBirth,
+            FirstName: user.FirstName,
+            LastName: user.LastName,
+            DateOfBirth: user.DateOfBirth,
           });
           break;
 
         case 2: // Organisation
           await organisationRepository.create({
             UserID: user.ID,
-            Name: account.Name,
-            PhoneNumber: account.PhoneNumber,
+            Name: user.Name,
+            PhoneNumber: user.PhoneNumber,
             Certified: false, // Default value
           });
           break;
