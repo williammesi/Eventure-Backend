@@ -11,7 +11,7 @@ import eventsValidator from "../validators/events.validator.js";
 const router = express.Router();
 
 router.get("/", retrieveAll);
-router.post("/events", eventsValidator.postValidator(), create);
+router.post("/", eventsValidator.postValidator(), create);
 
 router.get("/:id", retrieveById);
 
