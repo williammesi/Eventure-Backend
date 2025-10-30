@@ -115,7 +115,7 @@ class UserRepository {
     if (user.RoleID === 2) {
       const organisation = await organisationRepository.findByUserId(user.ID);
       if (organisation) {
-        user.organisation = {
+        user.Organisation = {
           Name: organisation.Name,
           Certified: organisation.Certified,
           PhoneNumber: organisation.PhoneNumber,
@@ -127,7 +127,6 @@ class UserRepository {
     delete user.__v;
     delete user.uuid;
     delete user.Password;
-    delete user.PasswordHash;
 
     return user;
   }
