@@ -109,8 +109,15 @@ class UserRepository {
     //TODO:
   }
 
-  transform(account) {
+  async transform(account) {
     account.href = `${process.env.BASE_URL}/accounts/${account.uuid}`;
+
+    if (account.RoleID === 2) {
+      const organisation = await organisationRepository.findByUserId(account.ID);
+      account.organisation.Name = organisation.Name;
+      account.organisation.Certified = organisation.Certified;
+      account.organisation.PhoneNumber = organisation.PhoneNumber;
+    }
 
     delete account._id;
     delete account.__v;
