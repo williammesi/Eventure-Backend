@@ -13,6 +13,7 @@ const router = express.Router();
 router.get("/", retrieveAll);
 router.post("/events", eventsValidator.postValidator(), create);
 
+router.delete("/:id", guardAuthorizationJWT, deleteById);
 router.get("/:id", retrieveById);
 
 async function retrieveAll(req, res, next) {
@@ -56,6 +57,16 @@ async function create(req, res, next) {
     }
 
     res.status(201).json(newEvent);
+  } catch (err) {
+    return next(err);
+  }
+}
+
+async function deleteById(req, res, next) {
+  try {
+    const id = req.params.id;
+    await eventsRepository.delete(id);
+    res.status(204).end();
   } catch (err) {
     return next(err);
   }
