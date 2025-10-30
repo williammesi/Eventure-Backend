@@ -113,7 +113,7 @@ class UserRepository {
     account.href = `${process.env.BASE_URL}/accounts/${account.uuid}`;
 
     if (account.RoleID === 2) {
-      const organisation = await organisationRepository.findByUserId(account.ID);
+      const organisation = await organisationRepository.findByUserId(account.UserID);
       if (organisation) {
         account.organisation = {
           Name: organisation.Name,
