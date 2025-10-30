@@ -112,11 +112,25 @@ class UserRepository {
   async transform(user) {
     user.href = `${process.env.BASE_URL}/users/${user.ID}`;
 
-    if (user.RoleID === 2) {
-      const organisation = await organisationRepository.findByUserId(user.ID);
-      if (organisation) {
-        user.Organisation = {
-          Name: organisation.Name,
+
+    switch (user.RoleID) {
+      case 1:
+        user.Role = "Client";
+        const client = await clientRepository.findByUserId(user.ID);
+        if (client) {
+          user.Client = {
+            FirstName: client.FirstName,
+            LastName: client.LastName,
+            DateOfBirth: client.DateOfBirth,
+          };
+        }
+        break;
+      case 2:
+        user.Role = "Organisation";
+        const organisation = await organisationRepository.findByUserId(user.ID);
+        if (organisation) {
+          user.Organisation = {
+            Name: organisation.Name,
           Certified: organisation.Certified,
           PhoneNumber: organisation.PhoneNumber,
         };
