@@ -34,7 +34,7 @@ async function login(req, res, next) {
 
 
         user = user.toJSON();
-        user = userRepository.transform(user);
+        user = await userRepository.transform(user);
 
         res.status(201).json({ user, tokens });
     } catch (err) {

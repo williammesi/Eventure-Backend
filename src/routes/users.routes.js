@@ -54,7 +54,7 @@ async function retrieveById(req, res, next) {
     }
     user = user.toJSON();
     // TODO: user = usersRepository.transform(user, req.options);
-    user = userRepository.transform(user);
+    user = await userRepository.transform(user);
     res.status(200).json(user);
     
   } catch (err) {
