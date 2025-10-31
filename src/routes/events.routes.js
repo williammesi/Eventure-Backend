@@ -13,7 +13,7 @@ const router = express.Router();
 router.get("/", retrieveAll);
 router.post("/events", eventsValidator.postValidator(), create);
 
-router.delete("/:id", guardAuthorizationJWT, deleteById);
+router.delete("/events/:id", guardAuthorizationJWT, deleteById);
 router.get("/:id", retrieveById);
 
 async function retrieveAll(req, res, next) {
