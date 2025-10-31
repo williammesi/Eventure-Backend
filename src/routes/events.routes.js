@@ -65,19 +65,17 @@ async function create(req, res, next) {
 async function deleteById(req, res, next) {
   try {
     const id = req.params.id;
-    const userId = req.auth.userId;
-    const userRoleId = req.auth.roleId;
+    const userId = parseInt(req.auth.userId); // Convertir en nombre
+    const userRoleId = parseInt(req.auth.roleId); // Convertir en nombre
     
     console.log('=== DEBUG DELETE BACKEND ===');
     console.log('Event ID:', id);
-    console.log('req.auth:', req.auth);
-    console.log('userId from token:', userId);
-    console.log('userRoleId from token:', userRoleId);
+    console.log('userId from token:', userId, typeof userId);
+    console.log('userRoleId from token:', userRoleId, typeof userRoleId);
     
     const event = await eventsRepository.findById(id);
     
-    console.log('Event found:', event);
-    console.log('Event UserID:', event?.UserID);
+    console.log('Event UserID:', event?.UserID, typeof event?.UserID);
     
     if (!event) {
       throw HttpErrors.NotFound("Événement non trouvé");
@@ -86,9 +84,8 @@ async function deleteById(req, res, next) {
     const isModerator = userRoleId === 3;
     const isOrganizer = event.UserID === userId;
     
-    console.log('isModerator:', isModerator);
-    console.log('isOrganizer:', isOrganizer);
-    console.log('Comparison:', event.UserID, '===', userId, '?', event.UserID === userId);
+    console.log('isModerator:', isModerator, '(', userRoleId, '=== 3)');
+    console.log('isOrganizer:', isOrganizer, '(', event.UserID, '===', userId, ')');
     
     if (!isModerator && !isOrganizer) {
       throw HttpErrors.Forbidden("Vous n'êtes pas autorisé à supprimer cet événement");
@@ -97,6 +94,7 @@ async function deleteById(req, res, next) {
     await eventsRepository.delete(id);
     res.status(204).end();
   } catch (err) {
+    console.error('Error in deleteById:', err);
     return next(err);
   }
 }
