@@ -5,15 +5,16 @@ import validator from "../middlewares/validator.js";
 
 import eventsRepository from "../repositories/event.repository.js";
 
-import { guardAuthorizationJWT } from "../middlewares/authorization.jwt.js";
+import { authenticateToken } from "../middlewares/authorization.jwt.js";
 import eventsValidator from "../validators/events.validator.js";
+
 
 const router = express.Router();
 
 router.get("/", retrieveAll);
 router.post("/events", eventsValidator.postValidator(), create);
 
-router.delete("/:id",deleteById);
+router.delete("/:id", authenticateToken, deleteById);
 router.get("/:id", retrieveById);
 
 async function retrieveAll(req, res, next) {
@@ -65,6 +66,22 @@ async function create(req, res, next) {
 async function deleteById(req, res, next) {
   try {
     const id = req.params.id;
+    const userId = parseInt(req.auth.userId);
+    const userRoleId = parseInt(req.auth.roleId);
+    
+    const event = await eventsRepository.findById(id);
+    
+    if (!event) {
+      throw HttpErrors.NotFound("Événement non trouvé");
+    }
+    
+    const isModerator = userRoleId === 3;
+    const isOrganizer = event.UserID === userId;
+    
+    if (!isModerator && !isOrganizer) {
+      throw HttpErrors.Forbidden("Vous n'êtes pas autorisé à supprimer cet événement");
+    }
+    
     await eventsRepository.delete(id);
     res.status(204).end();
   } catch (err) {
