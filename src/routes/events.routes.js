@@ -65,6 +65,24 @@ async function create(req, res, next) {
 async function deleteById(req, res, next) {
   try {
     const id = req.params.id;
+    const userId = req.auth.userId;
+    const userRoleId = req.auth.roleId;
+    
+    // Récupérer l'événement pour vérifier le propriétaire
+    const event = await eventsRepository.findById(id);
+    
+    if (!event) {
+      throw HttpErrors.NotFound("Événement non trouvé");
+    }
+    
+    // Vérifier si l'utilisateur est autorisé à supprimer
+    const isModerator = userRoleId === 3;
+    const isOrganizer = event.UserID === userId;
+    
+    if (!isModerator && !isOrganizer) {
+      throw HttpErrors.Forbidden("Vous n'êtes pas autorisé à supprimer cet événement");
+    }
+    
     await eventsRepository.delete(id);
     res.status(204).end();
   } catch (err) {
