@@ -68,16 +68,27 @@ async function deleteById(req, res, next) {
     const userId = req.auth.userId;
     const userRoleId = req.auth.roleId;
     
-    // Récupérer l'événement pour vérifier le propriétaire
+    console.log('=== DEBUG DELETE BACKEND ===');
+    console.log('Event ID:', id);
+    console.log('req.auth:', req.auth);
+    console.log('userId from token:', userId);
+    console.log('userRoleId from token:', userRoleId);
+    
     const event = await eventsRepository.findById(id);
+    
+    console.log('Event found:', event);
+    console.log('Event UserID:', event?.UserID);
     
     if (!event) {
       throw HttpErrors.NotFound("Événement non trouvé");
     }
     
-    // Vérifier si l'utilisateur est autorisé à supprimer
     const isModerator = userRoleId === 3;
     const isOrganizer = event.UserID === userId;
+    
+    console.log('isModerator:', isModerator);
+    console.log('isOrganizer:', isOrganizer);
+    console.log('Comparison:', event.UserID, '===', userId, '?', event.UserID === userId);
     
     if (!isModerator && !isOrganizer) {
       throw HttpErrors.Forbidden("Vous n'êtes pas autorisé à supprimer cet événement");
