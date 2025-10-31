@@ -40,10 +40,10 @@ const authenticateToken = (req, res, next) => {
         
         // Adaptez selon les champs de votre token JWT
         req.auth = {
-            userId: decoded.userId || decoded.id || decoded.ID,
-            roleId: decoded.roleId || decoded.RoleID,
+            userId: decoded.userId,  // Maintenant ça existera !
+            roleId: decoded.roleId,  // Maintenant ça existera !
             email: decoded.email
-        };
+    };
         
         next();
     } catch (error) {

@@ -91,19 +91,33 @@ class UserRepository {
     });
   }
 
-  generateJWT(uuid) {
-    const access = jwt.sign({ uuid: uuid }, process.env.JWT_TOKEN_SECRET, {
-      expiresIn: process.env.JWT_TOKEN_LIFE,
-      issuer: process.env.BASE_URL,
-    });
-    const refresh = jwt.sign({ uuid }, process.env.JWT_REFRESH_SECRET, {
-      expiresIn: process.env.JWT_REFRESH_LIFE,
-      issuer: process.env.BASE_URL,
-    });
+  generateJWT(userId, roleId) {
+    const access = jwt.sign(
+        { 
+            userId: userId,  // ou uuid: userId si vous préférez
+            roleId: roleId 
+        }, 
+        process.env.JWT_TOKEN_SECRET, 
+        {
+            expiresIn: process.env.JWT_TOKEN_LIFE,
+            issuer: process.env.BASE_URL,
+        }
+    );
+    const refresh = jwt.sign(
+        { 
+            userId: userId,
+            roleId: roleId 
+        }, 
+        process.env.JWT_REFRESH_SECRET, 
+        {
+            expiresIn: process.env.JWT_REFRESH_LIFE,
+            issuer: process.env.BASE_URL,
+        }
+    );
     const expiresIn = parseDuration(process.env.JWT_TOKEN_LIFE);
 
     return { access, refresh, expiresIn };
-  }
+}
 
   async validateRefreshToken(email, headerBase64) {
     //TODO:

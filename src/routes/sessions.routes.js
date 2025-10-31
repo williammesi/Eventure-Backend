@@ -30,8 +30,7 @@ async function login(req, res, next) {
             throw new HttpErrors.Unauthorized('Identifiants invalides');
         }
 
-        const tokens = userRepository.generateJWT(user._id);
-
+        const tokens = userRepository.generateJWT(user.ID, user.RoleID);  // Passez userId et roleId
 
         user = user.toJSON();
         user = await userRepository.transform(user);
