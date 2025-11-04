@@ -1,8 +1,8 @@
 import { DataTypes } from "sequelize";
 import sequelize from "../core/database.js";
 
-const Thread = sequelize.define(
-  "Thread",
+const Commentaire = sequelize.define(
+  "Commentaire",
   {
     ID: {
       type: DataTypes.INTEGER,
@@ -25,10 +25,6 @@ const Thread = sequelize.define(
         key: "ID",
       },
     },
-    Title: {
-      type: DataTypes.STRING(255),
-      allowNull: false,
-    },
     CreationDate: {
       type: DataTypes.DATE,
       allowNull: false,
@@ -39,9 +35,9 @@ const Thread = sequelize.define(
     },
   },
   {
-    tableName: "Thread",
+    tableName: "Commentaires",
     timestamps: false,
   }
 );
 
-export default Thread;
+export default Commentaire;
