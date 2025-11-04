@@ -18,6 +18,7 @@ import Thread from './Thread.js';
 import ThreadAnswer from './ThreadAnswer.js';
 import FollowedEvent from './FollowedEvent.js';
 import FollowedOrganisation from './FollowedOrganisation.js';
+import CertificationRequest from './CertificationRequest.js';
 
 User.belongsTo(Role, { foreignKey: 'RoleID' });
 Role.hasMany(User, { foreignKey: 'RoleID' });
@@ -102,5 +103,6 @@ export {
   Thread,
   ThreadAnswer,
   FollowedEvent,
-  FollowedOrganisation
+  FollowedOrganisation,
+  CertificationRequest
 };
