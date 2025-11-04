@@ -9,6 +9,7 @@ import clientRepository from "./client.repository.js";
 import organisationRepository from "./organisation.repository.js";
 
 import User from "../models/User.js";
+import CertificationRequest from "../models/CertificationRequest.js";
 
 class UserRepository {
   async login(credential, password) {
@@ -40,13 +41,13 @@ class UserRepository {
       console.log("Objet envoyé à Sequelize:", user);
 
       // 2. Create user record
-      const user = await User.create(user);
+      const createdUser = await User.create(user);
 
       // 3. Create profile based on role
-      switch (user.RoleID) {
+      switch (createdUser.RoleID) {
         case 1: // Client
           await clientRepository.create({
-            UserID: user.ID,
+            UserID: createdUser.ID,
             FirstName: user.FirstName,
             LastName: user.LastName,
             DateOfBirth: user.DateOfBirth,
@@ -55,10 +56,17 @@ class UserRepository {
 
         case 2: // Organisation
           await organisationRepository.create({
-            UserID: user.ID,
+            UserID: createdUser.ID,
             Name: user.Name,
             PhoneNumber: user.PhoneNumber,
             Certified: false, // Default value
+          });
+
+          // Create certification request for the organisation
+          await CertificationRequest.create({
+            TargetType: 'user',
+            TargetID: createdUser.ID,
+            Status: 'Pending'
           });
           break;
 
@@ -68,7 +76,7 @@ class UserRepository {
       }
 
       // 4. Return the user (not the profile)
-      return user;
+      return createdUser;
     } catch (err) {
       console.error("Error in user repository create:", err);
       throw err;
