@@ -13,7 +13,7 @@ const router = express.Router();
 router.post('/', usersValidators.postValidator(), validator, post);
 router.get('/:id', retrieveById);
 router.get('/organisation/:id', retrieveAnOrganisationById);
-
+router.patch('/:id', usersValidators.patchValidator(), validator, patch);
 
 async function post(req, res, next) {
     try {
@@ -45,6 +45,38 @@ async function post(req, res, next) {
     }
 }
 
+async function patch(req, res, next) {
+    try {
+        const id = req.params.id;
+        const { username, email, organisationName, phoneNumber } = req.body;
+
+        console.log("Mise à jour utilisateur ID:", id);
+        console.log("Données reçues:", req.body);
+
+        // Vérifier que l'utilisateur existe
+        let user = await userRepository.retrieveById(id);
+        if (!user) {
+            throw HttpErrors.NotFound('Utilisateur non trouvé');
+        }
+
+        // Mettre à jour l'utilisateur
+        const updatedData = await userRepository.update(id, {
+            username,
+            email,
+            organisationName,
+            phoneNumber
+        });
+
+        res.status(200).json({ 
+            success: true, 
+            message: 'Profil mis à jour avec succès',
+            user: updatedData 
+        });
+    } catch (err) {
+        console.error('Erreur lors de la mise à jour:', err);
+        return next(err);
+    }
+}
 
 
 
