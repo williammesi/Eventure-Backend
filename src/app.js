@@ -13,6 +13,7 @@ import securityQuestionsRoutes from "./routes/securityQuestion.routes.js";
 import locationRoutes from "./routes/locations.routes.js";
 import imagesRoutes from "./routes/images.routes.js";
 import categoriesRoutes from "./routes/categories.routes.js";
+import commentairesRoutes from "./routes/commentaires.routes.js";
 
 const app = express();
 
@@ -60,6 +61,7 @@ app.head("/status", (req, res) => {
 app.use("/events", eventsRoutes);
 app.use("/security-questions", securityQuestionsRoutes);
 app.use("/categories", categoriesRoutes);
+app.use("/commentaires", commentairesRoutes);
 
 app.use("/users", usersRoutes);
 app.use("/sessions", sessionsRoutes);
