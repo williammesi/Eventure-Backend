@@ -49,11 +49,12 @@ async function retrieveById(req, res, next) {
 
 async function create(req, res, next) {
   try {
-    const newEvent = await eventsRepository.create(req.body);
-
     if (req.query._body === "false") {
       return res.status(204).end();
     }
+
+    const newEvent = await eventsRepository.create(req.body);
+    console.log(newEvent);
 
     res.status(201).json(newEvent);
   } catch (err) {
