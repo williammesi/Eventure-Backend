@@ -14,7 +14,7 @@ import Notification from './Notification.js';
 import Survey from './Survey.js';
 import SurveyChoice from './SurveyChoice.js';
 import SurveyAnswer from './SurveyAnswer.js';
-import Commentaire from './Commentaires.js';
+import Commentaire from './Commentaire.js';
 import FollowedEvent from './FollowedEvent.js';
 import FollowedOrganisation from './FollowedOrganisation.js';
 import CertificationRequest from './CertificationRequest.js';
