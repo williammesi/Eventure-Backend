@@ -1,0 +1,23 @@
+meta {
+  name: Login
+  type: http
+  seq: 2
+}
+
+post {
+  url: http://localhost:5000/sessions/
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "credential": "org1",
+    "password": "org123456"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

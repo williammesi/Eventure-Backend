@@ -1,111 +1,171 @@
-import crypto from 'crypto';
-import jwt from 'jsonwebtoken';
-import HttpErrors from 'http-errors';
-import argon from 'argon2';
-import parseDuration from 'parse-duration';
-import { Op } from 'sequelize';
+import crypto from "crypto";
+import jwt from "jsonwebtoken";
+import HttpErrors from "http-errors";
+import argon from "argon2";
+import parseDuration from "parse-duration";
+import { Op } from "sequelize";
 
-import User from '../models/User.js';
-import Organisation from '../models/Organisation.js';
+import clientRepository from "./client.repository.js";
+import organisationRepository from "./organisation.repository.js";
+
+import User from "../models/User.js";
+import CertificationRequest from "../models/CertificationRequest.js";
 
 class UserRepository {
-    async login(credential, password) {
-        const account = await this.retrieveByCredentials(credential);
-        if (!account) {
-            //Email ou Username non présent en base de données
-            throw HttpErrors.Unauthorized();
-        }
-
-        if (!(await this.validatePassword(password, account))) {
-            throw HttpErrors.Unauthorized();
-        }
-
-        return account;
+  async login(credential, password) {
+    const user = await this.retrieveByCredentials(credential);
+    if (!user) {
+      //Email ou Username non présent en base de données
+      throw HttpErrors.Unauthorized();
     }
 
-    async validatePassword(password, account) {
-        return await argon.verify(account.Password, password);
+    if (!(await this.validatePassword(password, user))) {
+      throw HttpErrors.Unauthorized();
     }
 
-    async create(account) {
+    return user;
+  }
+
+  async validatePassword(password, user) {
+    return await argon.verify(user.Password, password);
+  }
+
+  async create(user) {
     try {
-        console.log("Payload reçu dans repository:", account);
+      console.log("Payload reçu dans repository:", user);
 
-        const passwordHash = await argon.hash(account.Password);
+      // 1. Hash password
+      const passwordHash = await argon.hash(user.Password);
+      user.Password = passwordHash;
 
-        account.Password = passwordHash;
+      console.log("Objet envoyé à Sequelize:", user);
 
-        console.log("Objet envoyé à Sequelize:", account);
+      // 2. Create user record
+      const createdUser = await User.create(user);
 
-        return await User.create(account);
+      // 3. Create profile based on role
+      switch (createdUser.RoleID) {
+        case 1: // Client
+          await clientRepository.create({
+            UserID: createdUser.ID,
+            FirstName: user.FirstName,
+            LastName: user.LastName,
+            DateOfBirth: user.DateOfBirth,
+          });
+          break;
+
+        case 2: // Organisation
+          await organisationRepository.create({
+            UserID: createdUser.ID,
+            Name: user.Name,
+            PhoneNumber: user.PhoneNumber,
+            Certified: false, // Default value
+          });
+
+          // Create certification request for the organisation
+          await CertificationRequest.create({
+            TargetType: 'user',
+            TargetID: createdUser.ID,
+            Status: 'Pending'
+          });
+          break;
+
+        default:
+          // Admin or other role - no profile needed
+          break;
+      }
+
+      // 4. Return the user (not the profile)
+      return createdUser;
     } catch (err) {
-        throw err;
+      console.error("Error in user repository create:", err);
+      throw err;
     }
+  }
+
+  async retrieveById(id) {
+    return User.findByPk(id);
+  }
+
+  async retrieveAll() {
+    return User.findAll();
+  }
+
+  retrieveByCredentials(credential) {
+    return User.findOne({
+      where: {
+        [Op.or]: [{ Email: credential }, { Username: credential }],
+      },
+    });
+  }
+
+  generateJWT(userId, roleId) {
+    const access = jwt.sign(
+        { 
+            userId: userId,  // ou uuid: userId si vous préférez
+            roleId: roleId 
+        }, 
+        process.env.JWT_TOKEN_SECRET, 
+        {
+            expiresIn: process.env.JWT_TOKEN_LIFE,
+            issuer: process.env.BASE_URL,
+        }
+    );
+    const refresh = jwt.sign(
+        { 
+            userId: userId,
+            roleId: roleId 
+        }, 
+        process.env.JWT_REFRESH_SECRET, 
+        {
+            expiresIn: process.env.JWT_REFRESH_LIFE,
+            issuer: process.env.BASE_URL,
+        }
+    );
+    const expiresIn = parseDuration(process.env.JWT_TOKEN_LIFE);
+
+    return { access, refresh, expiresIn };
 }
 
-    async retrieveById(id) {
-        return User.findByPk(id);
+  async validateRefreshToken(email, headerBase64) {
+    //TODO:
+  }
+
+  async transform(user) {
+    user.href = `${process.env.BASE_URL}/users/${user.ID}`;
+
+
+    switch (user.RoleID) {
+      case 1:
+        user.Role = "Client";
+        const client = await clientRepository.findByUserId(user.ID);
+        if (client) {
+          user.Client = {
+            FirstName: client.FirstName,
+            LastName: client.LastName,
+            DateOfBirth: client.DateOfBirth,
+          };
+        }
+        break;
+      case 2:
+        user.Role = "Organisation";
+        const organisation = await organisationRepository.findByUserId(user.ID);
+        if (organisation) {
+          user.Organisation = {
+            Name: organisation.Name,
+          Certified: organisation.Certified,
+          PhoneNumber: organisation.PhoneNumber,
+        };
+      }
     }
 
-    retrieveByCredentials(credential) {
-        return User.findOne({ 
-            where: {
-                [Op.or]: [
-                    { Email: credential }, 
-                    { Username: credential }
-                ] 
-            }
-        });
-    }
+    delete user._id;
+    delete user.__v;
+    delete user.uuid;
+    delete user.Password;
 
-   async retrieveAnOrganisationById(userId) {
-        return await Organisation.findOne({
-            where: { UserID: userId },
-            include: [{
-                model: User,
-                as: 'user',
-                attributes: ['ID', 'Username', 'Email', 'ProfilePictureHref']
-            }]
-        });
-    }
-
-    generateJWT(uuid) {
-        const access = jwt.sign({ uuid: uuid }, 
-            process.env.JWT_TOKEN_SECRET, 
-            {
-                expiresIn: process.env.JWT_TOKEN_LIFE,
-                issuer: process.env.BASE_URL
-            }
-        );
-        const refresh = jwt.sign({ uuid },
-            process.env.JWT_REFRESH_SECRET,
-            {
-                expiresIn: process.env.JWT_REFRESH_LIFE,
-                issuer: process.env.BASE_URL
-            }
-        );
-        const expiresIn = parseDuration(process.env.JWT_TOKEN_LIFE);
-
-        return { access, refresh, expiresIn };
-    }
-
-    async validateRefreshToken(email, headerBase64) {
-        //TODO:
-    }
-
-    
-
-    transform(account) {
-        account.href = `${process.env.BASE_URL}/accounts/${account.uuid}`;
-
-        delete account._id;
-        delete account.__v;
-        delete account.uuid;
-        delete account.password;
-        delete account.passwordHash;
-
-        return account;
-    }
+    return user;
+  }
 }
 
 export default new UserRepository();
