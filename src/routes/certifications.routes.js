@@ -17,3 +17,6 @@ async function retrieveAll(req, res, next) {
         return next(err);
     }
 }
+
+
+export default router;
