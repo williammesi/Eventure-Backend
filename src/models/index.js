@@ -14,8 +14,7 @@ import Notification from './Notification.js';
 import Survey from './Survey.js';
 import SurveyChoice from './SurveyChoice.js';
 import SurveyAnswer from './SurveyAnswer.js';
-import Thread from './Thread.js';
-import ThreadAnswer from './ThreadAnswer.js';
+import Commentaire from './Commentaire.js';
 import FollowedEvent from './FollowedEvent.js';
 import FollowedOrganisation from './FollowedOrganisation.js';
 import CertificationRequest from './CertificationRequest.js';
@@ -66,17 +65,13 @@ SurveyAnswer.belongsTo(User, { foreignKey: 'UserID' });
 SurveyAnswer.belongsTo(Survey, { foreignKey: 'SurveyID' });
 SurveyAnswer.belongsTo(SurveyChoice, { foreignKey: 'SurveyChoiceID' });
 
-Thread.belongsTo(Event, { foreignKey: 'EventID' });
-Event.hasMany(Thread, { foreignKey: 'EventID' });
+Commentaire.belongsTo(Event, { foreignKey: 'EventID' });
+Event.hasMany(Commentaire, { foreignKey: 'EventID' });
 
-Thread.belongsTo(User, { foreignKey: 'UserID' });
-User.hasMany(Thread, { foreignKey: 'UserID' });
+Commentaire.belongsTo(User, { foreignKey: 'UserID' });
+User.hasMany(Commentaire, { foreignKey: 'UserID' });
 
-ThreadAnswer.belongsTo(Thread, { foreignKey: 'ThreadID' });
-Thread.hasMany(ThreadAnswer, { foreignKey: 'ThreadID' });
 
-ThreadAnswer.belongsTo(User, { foreignKey: 'UserID' });
-User.hasMany(ThreadAnswer, { foreignKey: 'UserID' });
 
 FollowedEvent.belongsTo(Event, { foreignKey: 'EventID' });
 FollowedEvent.belongsTo(User, { foreignKey: 'UserID' });
@@ -100,8 +95,7 @@ export {
   Survey,
   SurveyChoice,
   SurveyAnswer,
-  Thread,
-  ThreadAnswer,
+  Commentaire,
   FollowedEvent,
   FollowedOrganisation,
   CertificationRequest
