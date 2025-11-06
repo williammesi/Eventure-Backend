@@ -58,6 +58,8 @@ export const uploadEventImages = async (req, res) => {
         pathname: blob.pathname,
       });
     }
+    console.log(responseData);
+
     res.status(201).json(responseData);
   } catch (error) {
     console.error("Upload error:", error);
