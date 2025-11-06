@@ -83,6 +83,80 @@ class UserRepository {
     }
   }
 
+  async updateOrganisation(userId, updates) {
+  try {
+    const user = await this.retrieveById(userId);
+    if (!user) {
+      throw HttpErrors.NotFound('Utilisateur non trouvé');
+    }
+    if (user.RoleID !== 2) {
+      throw HttpErrors.Forbidden('L\'utilisateur n\'est pas une organisation');
+    }
+
+    const organisation = await organisationRepository.findByUserId(userId);
+    if (!organisation) {
+      throw HttpErrors.NotFound('Profil organisation non trouvé');
+    }
+
+    const userUpdateData = {};
+    
+    if (updates.username !== undefined && updates.username !== user.Username) {
+      const existingUser = await User.findOne({
+        where: {
+          Username: updates.username,
+          ID: { [Op.ne]: userId }
+        }
+      });
+      
+      if (existingUser) {
+        throw HttpErrors.Conflict('Ce nom d\'utilisateur est déjà utilisé');
+      }
+      
+      userUpdateData.Username = updates.username;
+    }
+    
+    if (updates.email !== undefined && updates.email !== user.Email) {
+      const existingUser = await User.findOne({
+        where: {
+          Email: updates.email,
+          ID: { [Op.ne]: userId }
+        }
+      });
+      
+      if (existingUser) {
+        throw HttpErrors.Conflict('Cet email est déjà utilisé');
+      }
+      
+      userUpdateData.Email = updates.email;
+    }
+
+    if (Object.keys(userUpdateData).length > 0) {
+      await user.update(userUpdateData);
+    }
+
+    const organisationUpdateData = {};
+    
+    if (updates.organisationName !== undefined) {
+      organisationUpdateData.Name = updates.organisationName;
+    }
+    
+    if (updates.phoneNumber !== undefined) {
+      organisationUpdateData.PhoneNumber = updates.phoneNumber;
+    }
+
+    if (Object.keys(organisationUpdateData).length > 0) {
+      await organisation.update(organisationUpdateData);
+    }
+
+    const updatedUser = await this.retrieveById(userId);
+    return await this.transform(updatedUser);
+
+  } catch (err) {
+    console.error("Error in user repository updateOrganisation:", err);
+    throw err;
+  }
+}
+
   async retrieveById(id) {
     return User.findByPk(id);
   }
@@ -98,6 +172,11 @@ class UserRepository {
       },
     });
   }
+
+
+  
+
+
 
   generateJWT(userId, roleId) {
     const access = jwt.sign(

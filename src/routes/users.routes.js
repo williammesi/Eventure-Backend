@@ -11,6 +11,7 @@ const router = express.Router();
 //router.get('/', retrieveAll);
 router.post("/", usersValidators.postValidator(), validator, post);
 router.get("/:id", retrieveById);
+router.put("/:id", validator);
 
 async function post(req, res, next) {
   try {
@@ -27,6 +28,27 @@ async function post(req, res, next) {
     return next(err);
   }
 }
+
+// Dans votre fichier de routes
+router.put('/users/:id', async (req, res, next) => {
+  try {
+    const userId = parseInt(req.params.id);
+    
+    // Vérifier que l'utilisateur modifie son propre profil ou est admin
+    if (req.user.userId !== userId && req.user.roleId !== 3) {
+      return res.status(403).json({ 
+        message: "Vous n'êtes pas autorisé à modifier ce profil" 
+      });
+    }
+    
+    const updatedUser = await userRepository.updateOrganisation(userId, req.body);
+    
+    res.json(updatedUser);
+    
+  } catch (err) {
+    next(err);
+  }
+});
 
 // async function retrieveAll(req, res, next) {
 //     try {
@@ -59,5 +81,7 @@ async function retrieveById(req, res, next) {
         return next(err);
     }
 }
+
+
 
 export default router;
