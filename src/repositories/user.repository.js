@@ -9,56 +9,64 @@ import clientRepository from "./client.repository.js";
 import organisationRepository from "./organisation.repository.js";
 
 import User from "../models/User.js";
+import CertificationRequest from "../models/CertificationRequest.js";
 
 class UserRepository {
   async login(credential, password) {
-    const account = await this.retrieveByCredentials(credential);
-    if (!account) {
+    const user = await this.retrieveByCredentials(credential);
+    if (!user) {
       //Email ou Username non présent en base de données
       throw HttpErrors.Unauthorized();
     }
 
-    if (!(await this.validatePassword(password, account))) {
+    if (!(await this.validatePassword(password, user))) {
       throw HttpErrors.Unauthorized();
     }
 
-    return account;
+    return user;
   }
 
-  async validatePassword(password, account) {
-    return await argon.verify(account.Password, password);
+  async validatePassword(password, user) {
+    return await argon.verify(user.Password, password);
   }
 
-  async create(account) {
+  async create(user) {
     try {
-      console.log("Payload reçu dans repository:", account);
+      console.log("Payload reçu dans repository:", user);
 
       // 1. Hash password
-      const passwordHash = await argon.hash(account.Password);
-      account.Password = passwordHash;
+      const passwordHash = await argon.hash(user.Password);
+      user.Password = passwordHash;
 
-      console.log("Objet envoyé à Sequelize:", account);
+      console.log("Objet envoyé à Sequelize:", user);
 
       // 2. Create user record
-      const user = await User.create(account);
+      const createdUser = await User.create(user);
 
       // 3. Create profile based on role
-      switch (user.RoleID) {
+      switch (createdUser.RoleID) {
         case 1: // Client
           await clientRepository.create({
-            UserID: user.ID,
-            FirstName: account.FirstName,
-            LastName: account.LastName,
-            DateOfBirth: account.DateOfBirth,
+            UserID: createdUser.ID,
+            FirstName: user.FirstName,
+            LastName: user.LastName,
+            DateOfBirth: user.DateOfBirth,
           });
           break;
 
         case 2: // Organisation
           await organisationRepository.create({
-            UserID: user.ID,
-            Name: account.Name,
-            PhoneNumber: account.PhoneNumber,
+            UserID: createdUser.ID,
+            Name: user.Name,
+            PhoneNumber: user.PhoneNumber,
             Certified: false, // Default value
+          });
+
+          // Create certification request for the organisation
+          await CertificationRequest.create({
+            TargetType: 'user',
+            TargetID: createdUser.ID,
+            Status: 'Pending'
           });
           break;
 
@@ -68,7 +76,7 @@ class UserRepository {
       }
 
       // 4. Return the user (not the profile)
-      return user;
+      return createdUser;
     } catch (err) {
       console.error("Error in user repository create:", err);
       throw err;
@@ -91,34 +99,72 @@ class UserRepository {
     });
   }
 
-  generateJWT(uuid) {
-    const access = jwt.sign({ uuid: uuid }, process.env.JWT_TOKEN_SECRET, {
-      expiresIn: process.env.JWT_TOKEN_LIFE,
-      issuer: process.env.BASE_URL,
-    });
-    const refresh = jwt.sign({ uuid }, process.env.JWT_REFRESH_SECRET, {
-      expiresIn: process.env.JWT_REFRESH_LIFE,
-      issuer: process.env.BASE_URL,
-    });
+  generateJWT(userId, roleId) {
+    const access = jwt.sign(
+        { 
+            userId: userId,  // ou uuid: userId si vous préférez
+            roleId: roleId 
+        }, 
+        process.env.JWT_TOKEN_SECRET, 
+        {
+            expiresIn: process.env.JWT_TOKEN_LIFE,
+            issuer: process.env.BASE_URL,
+        }
+    );
+    const refresh = jwt.sign(
+        { 
+            userId: userId,
+            roleId: roleId 
+        }, 
+        process.env.JWT_REFRESH_SECRET, 
+        {
+            expiresIn: process.env.JWT_REFRESH_LIFE,
+            issuer: process.env.BASE_URL,
+        }
+    );
     const expiresIn = parseDuration(process.env.JWT_TOKEN_LIFE);
 
     return { access, refresh, expiresIn };
-  }
+}
 
   async validateRefreshToken(email, headerBase64) {
     //TODO:
   }
 
-  transform(account) {
-    account.href = `${process.env.BASE_URL}/accounts/${account.uuid}`;
+  async transform(user) {
+    user.href = `${process.env.BASE_URL}/users/${user.ID}`;
 
-    delete account._id;
-    delete account.__v;
-    delete account.uuid;
-    delete account.password;
-    delete account.passwordHash;
 
-    return account;
+    switch (user.RoleID) {
+      case 1:
+        user.Role = "Client";
+        const client = await clientRepository.findByUserId(user.ID);
+        if (client) {
+          user.Client = {
+            FirstName: client.FirstName,
+            LastName: client.LastName,
+            DateOfBirth: client.DateOfBirth,
+          };
+        }
+        break;
+      case 2:
+        user.Role = "Organisation";
+        const organisation = await organisationRepository.findByUserId(user.ID);
+        if (organisation) {
+          user.Organisation = {
+            Name: organisation.Name,
+          Certified: organisation.Certified,
+          PhoneNumber: organisation.PhoneNumber,
+        };
+      }
+    }
+
+    delete user._id;
+    delete user.__v;
+    delete user.uuid;
+    delete user.Password;
+
+    return user;
   }
 }
 

@@ -25,18 +25,17 @@ async function login(req, res, next) {
     try {
         const { credential, password } = req.body;
 
-        let account = await userRepository.login(credential, password);
-        if (!account) {
+        let user = await userRepository.login(credential, password);
+        if (!user) {
             throw new HttpErrors.Unauthorized('Identifiants invalides');
         }
 
-        const tokens = userRepository.generateJWT(account._id);
+        const tokens = userRepository.generateJWT(user.ID, user.RoleID);  // Passez userId et roleId
 
+        user = user.toJSON();
+        user = await userRepository.transform(user);
 
-        account = account.toJSON();
-        account = userRepository.transform(account);
-
-        res.status(201).json({ account, tokens });
+        res.status(201).json({ user, tokens });
     } catch (err) {
         return next(err);
     }
