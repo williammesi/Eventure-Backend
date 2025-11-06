@@ -63,6 +63,23 @@ class UsersValidators {
                 .withMessage('Banned Until must be a valid date (YYYY-MM-DD)')
         ];
     }
+    updateOrganisationValidator() {
+        return [
+            body('Name')
+                .optional()
+                .isString()
+                .trim()
+                .isLength({ min: 1, max: 255 })
+                .withMessage('Le nom doit être une chaîne non vide de moins de 255 caractères'),
+            body('PhoneNumber')
+                .optional()
+                .isString()
+                .trim()
+                .isLength({ min: 1, max: 20 })
+                .withMessage('Le numéro de téléphone doit être une chaîne valide de moins de 20 caractères'),
+            
+        ];
+    }
 }
 
 export default new UsersValidators();
