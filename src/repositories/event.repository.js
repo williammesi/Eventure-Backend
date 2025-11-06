@@ -20,10 +20,11 @@ class EventRepository {
           Longitude: eventData.Location.Longitude,
         },
       });
+
       eventData.LocationID = location[0].dataValues.ID;
       const newEvent = await Event.create(eventData);
 
-      return newEvent;
+      return newEvent.dataValues;
     } catch (error) {
       console.log(error);
       throw error;
