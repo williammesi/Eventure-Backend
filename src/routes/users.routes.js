@@ -11,6 +11,7 @@ const router = express.Router();
 //router.get('/', retrieveAll);
 router.post("/", usersValidators.postValidator(), validator, post);
 router.get("/:id", retrieveById);
+//router.put("/:id", usersValidators.updateOrganisationValidator(), validator);
 
 async function post(req, res, next) {
   try {
@@ -27,6 +28,36 @@ async function post(req, res, next) {
     return next(err);
   }
 }
+
+
+router.put('/:id', async (req, res, next) => {
+  try {
+    const userId = parseInt(req.params.id);
+
+    console.log('Route PUT /:id appelée');
+    console.log('userId:', userId);
+    console.log('req.body:', req.body);
+    
+    const updatedUser = await userRepository.updateOrganisation(userId, req.body);
+    
+    return res.status(200).json(updatedUser);
+    
+  } catch (err) {
+    console.error('Erreur dans la route PUT /users/:id:', err);
+    
+    if (err.status === 404) {
+      return res.status(404).json({ message: err.message });
+    }
+    if (err.status === 403) {
+      return res.status(403).json({ message: err.message });
+    }
+    if (err.status === 409) {
+      return res.status(409).json({ message: err.message });
+    }
+    
+    return res.status(500).json({ message: err.message || 'Erreur serveur' });
+  }
+});
 
 // async function retrieveAll(req, res, next) {
 //     try {
