@@ -13,7 +13,7 @@ import securityQuestionsRoutes from "./routes/securityQuestion.routes.js";
 import locationRoutes from "./routes/locations.routes.js";
 import imagesRoutes from "./routes/images.routes.js";
 import categoriesRoutes from "./routes/categories.routes.js";
-import certificationsRoutes from "./routes/certification.routes.js";
+import certificationsRoutes from "./routes/certifications.routes.js";
 import commentairesRoutes from "./routes/commentaires.routes.js";
 
 const app = express();
