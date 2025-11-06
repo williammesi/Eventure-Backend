@@ -1,4 +1,5 @@
 import Commentaire from "../models/Commentaire.js";
+import User from "../models/User.js";
 
 class CommentaireRepository {
   async retrieveAllForEvent(eventId) {
