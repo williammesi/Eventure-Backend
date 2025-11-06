@@ -1,5 +1,5 @@
 import express from "express";
-import certificationsRepository from "../repositories/certifications.repository.js";
+import certificationsRepository from "../repositories/certification.repository.js";
 
 const router = express.Router();
 router.get("/", retrieveAll);
