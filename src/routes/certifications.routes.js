@@ -5,47 +5,72 @@ const router = express.Router();
 router.get("/", retrieveAll);
 router.patch("/:id/approve", approveCertification);
 router.patch("/:id/reject", rejectCertification);
+router.post("/", create);
 
 async function retrieveAll(req, res, next) {
-    try {
-        let certifications = await certificationsRepository.retrieveAll();
-        certifications = certifications.map((c) => {
-            c = c.toJSON();
-            return c;
-        });
-        res.status(200).json(certifications);
-    } catch (err) {
-        console.log(err);
-        return next(err);
-    }
+  try {
+    let certifications = await certificationsRepository.retrieveAll();
+    certifications = certifications.map((c) => {
+      c = c.toJSON();
+      return c;
+    });
+    res.status(200).json(certifications);
+  } catch (err) {
+    console.log(err);
+    return next(err);
+  }
 }
 
 async function approveCertification(req, res, next) {
-    try {
-        const { id } = req.params;
-        const certification = await certificationsRepository.approveCertification(id);
-        if (!certification) {
-            return res.status(404).json({ message: "Demande de certification non trouvée" });
-        }
-        res.status(200).json(certification.toJSON());
-    } catch (err) {
-        console.log(err);
-        return next(err);
+  try {
+    const { id } = req.params;
+    const certification = await certificationsRepository.approveCertification(
+      id
+    );
+    if (!certification) {
+      return res
+        .status(404)
+        .json({ message: "Demande de certification non trouvée" });
     }
+    res.status(200).json(certification.toJSON());
+  } catch (err) {
+    console.log(err);
+    return next(err);
+  }
 }
 
 async function rejectCertification(req, res, next) {
-    try {
-        const { id } = req.params;
-        const certification = await certificationsRepository.rejectCertification(id);
-        if (!certification) {
-            return res.status(404).json({ message: "Demande de certification non trouvée" });
-        }
-        res.status(200).json(certification.toJSON());
-    } catch (err) {
-        console.log(err);
-        return next(err);
+  try {
+    const { id } = req.params;
+    const certification = await certificationsRepository.rejectCertification(
+      id
+    );
+    if (!certification) {
+      return res
+        .status(404)
+        .json({ message: "Demande de certification non trouvée" });
     }
+    res.status(200).json(certification.toJSON());
+  } catch (err) {
+    console.log(err);
+    return next(err);
+  }
+}
+
+async function create(req, res, next) {
+  try {
+    if (req.query._body === "false") {
+      return res.status(204).end();
+    }
+
+    const newCertificationRequest = await certificationsRepository.create(
+      req.body
+    );
+
+    res.status(201).json(newCertificationRequest);
+  } catch (error) {
+    return next(err);
+  }
 }
 
 export default router;
