@@ -17,6 +17,7 @@ export const uploadEventImages = async (req, res) => {
       const image = req.files[i];
 
       const imageName = `event${req.body.eventId}-${i + 1}.jpg`;
+      console.log(imageName);
 
       if (!imageName) {
         console.log("No imageName in request body");
