@@ -8,7 +8,6 @@ import eventsRepository from "../repositories/event.repository.js";
 import { authenticateToken } from "../middlewares/authorization.jwt.js";
 import eventsValidator from "../validators/events.validator.js";
 
-
 const router = express.Router();
 
 router.get("/", retrieveAll);
@@ -56,7 +55,6 @@ async function create(req, res, next) {
     }
 
     const newEvent = await eventsRepository.create(req.body);
-    console.log(newEvent);
 
     res.status(201).json(newEvent);
   } catch (err) {
@@ -69,20 +67,22 @@ async function deleteById(req, res, next) {
     const id = req.params.id;
     const userId = parseInt(req.auth.userId);
     const userRoleId = parseInt(req.auth.roleId);
-    
+
     const event = await eventsRepository.findById(id);
-    
+
     if (!event) {
       throw HttpErrors.NotFound("Événement non trouvé");
     }
-    
+
     const isModerator = userRoleId === 3;
     const isOrganizer = event.UserID === userId;
-    
+
     if (!isModerator && !isOrganizer) {
-      throw HttpErrors.Forbidden("Vous n'êtes pas autorisé à supprimer cet événement");
+      throw HttpErrors.Forbidden(
+        "Vous n'êtes pas autorisé à supprimer cet événement"
+      );
     }
-    
+
     await eventsRepository.delete(id);
     res.status(204).end();
   } catch (err) {

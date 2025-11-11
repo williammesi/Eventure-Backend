@@ -1,5 +1,5 @@
-import CertificationRequest from '../models/CertificationRequest.js';
-import Organisation from '../models/Organisation.js';
+import CertificationRequest from "../models/CertificationRequest.js";
+import Organisation from "../models/Organisation.js";
 
 const certificationsRepository = {
   async retrieveAll() {
@@ -10,30 +10,32 @@ const certificationsRepository = {
     const cert = await CertificationRequest.findByPk(id);
     if (!cert) return null;
 
-    cert.Status = 'Approved';
+    cert.Status = "Approved";
     await cert.save();
 
     // If the target is a user, it may correspond to an Organisation (Organisation.UserID)
-    if (cert.TargetType === 'user') {
-      const org = await Organisation.findOne({ where: { UserID: cert.TargetID } });
+    if (cert.TargetType === "user") {
+      const org = await Organisation.findOne({
+        where: { UserID: cert.TargetID },
+      });
       if (org) {
         org.Certified = true; // set to 1 / true
         await org.save();
       }
     }
-
-    return cert;
   },
 
   async rejectCertification(id) {
     const cert = await CertificationRequest.findByPk(id);
     if (!cert) return null;
 
-    cert.Status = 'Declined';
+    cert.Status = "Declined";
     await cert.save();
 
-    if (cert.TargetType === 'user') {
-      const org = await Organisation.findOne({ where: { UserID: cert.TargetID } });
+    if (cert.TargetType === "user") {
+      const org = await Organisation.findOne({
+        where: { UserID: cert.TargetID },
+      });
       if (org) {
         org.Certified = false; // ensure it's 0 / false
         await org.save();
@@ -41,7 +43,7 @@ const certificationsRepository = {
     }
 
     return cert;
-  }
+  },
 };
 
 export default certificationsRepository;
