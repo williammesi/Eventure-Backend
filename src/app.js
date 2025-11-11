@@ -76,3 +76,5 @@ app.use(limitRoute);
 app.use(errors);
 
 export default app;
+
+// deploiement vercel
