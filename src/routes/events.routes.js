@@ -16,6 +16,35 @@ router.post("/", eventsValidator.postValidator(), create);
 router.delete("/:id", authenticateToken, deleteById);
 router.get("/:id", retrieveById);
 
+
+router.put('/:id', async (req, res, next) => {
+  try {
+    const eventId = parseInt(req.params.id);
+    console.log('Route PUT /events/:id appelée');
+    console.log('eventId:', eventId);
+    console.log('req.body:', req.body);
+
+    const updatedEvent = await eventsRepository.updateEvent(eventId, req.body);
+    return res.status(200).json(updatedEvent);
+
+  } catch (err) {
+    console.error('Erreur dans la route PUT /events/:id:', err);
+
+    if (err.status === 404) {
+      return res.status(404).json({ message: err.message });
+    }
+    if (err.status === 403) {
+      return res.status(403).json({ message: err.message });
+    }
+    if (err.status === 409) {
+      return res.status(409).json({ message: err.message });
+    }
+
+    return res.status(500).json({ message: err.message || 'Erreur serveur' });
+  }
+});
+
+
 async function retrieveAll(req, res, next) {
   try {
     let events = await eventsRepository.retrieveAll();
