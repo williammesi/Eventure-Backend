@@ -26,18 +26,19 @@ class EventRepository {
       const newEvent = await Event.create(eventData);
 
       if (
-        User.findByPk(newEvent.dataValues.UserID).RoleID ===
-        Role.findOne({
+        (await User.findByPk(newEvent.dataValues.UserID).RoleID) ===
+        (await Role.findOne({
           where: {
             Name: "Client",
           },
-        })
+        }).ID)
       ) {
         console.log("Creating certification request");
 
         await CertificationRequest.create({
           TargetType: "event",
-          TargetId: newEvent.dataValues.ID,
+          TargetID: newEvent.dataValues.ID,
+          Status: "Pending",
         });
       }
 
