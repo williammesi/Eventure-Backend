@@ -6,6 +6,7 @@ import User from "../models/User.js";
 import Client from "../models/Client.js";
 import Organisation from "../models/Organisation.js";
 import geocodingService from "../services/geocoding.service.js";
+import { CertificationRequest, Role } from "../models/index.js";
 
 class EventRepository {
   async create(eventData) {
@@ -23,6 +24,22 @@ class EventRepository {
 
       eventData.LocationID = location[0].dataValues.ID;
       const newEvent = await Event.create(eventData);
+
+      if (
+        User.findByPk(newEvent.dataValues.UserID).RoleID ===
+        Role.findOne({
+          where: {
+            Name: "Client",
+          },
+        })
+      ) {
+        console.log("Creating certification request");
+
+        await CertificationRequest.create({
+          TargetType: "event",
+          TargetId: newEvent.dataValues.ID,
+        });
+      }
 
       return newEvent.dataValues;
     } catch (error) {
@@ -140,7 +157,6 @@ class EventRepository {
       }
       delete event.User;
     }
-    
 
     if (event.Location) {
       event.Location = {

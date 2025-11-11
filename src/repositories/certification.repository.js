@@ -23,8 +23,6 @@ const certificationsRepository = {
         await org.save();
       }
     }
-
-    return cert;
   },
 
   async rejectCertification(id) {
@@ -45,15 +43,6 @@ const certificationsRepository = {
     }
 
     return cert;
-  },
-
-  async create(certificationData) {
-    const newCertificationRequest = await CertificationRequest.create({
-      TargetType: certificationData.targetType,
-      TargetID: certificationData.targetId,
-    });
-
-    return newCertificationRequest.dataValues;
   },
 };
 

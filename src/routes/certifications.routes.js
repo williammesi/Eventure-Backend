@@ -5,7 +5,6 @@ const router = express.Router();
 router.get("/", retrieveAll);
 router.patch("/:id/approve", approveCertification);
 router.patch("/:id/reject", rejectCertification);
-router.post("/", create);
 
 async function retrieveAll(req, res, next) {
   try {
@@ -53,22 +52,6 @@ async function rejectCertification(req, res, next) {
     res.status(200).json(certification.toJSON());
   } catch (err) {
     console.log(err);
-    return next(err);
-  }
-}
-
-async function create(req, res, next) {
-  try {
-    if (req.query._body === "false") {
-      return res.status(204).end();
-    }
-
-    const newCertificationRequest = await certificationsRepository.create(
-      req.body
-    );
-
-    res.status(201).json(newCertificationRequest);
-  } catch (error) {
     return next(err);
   }
 }
