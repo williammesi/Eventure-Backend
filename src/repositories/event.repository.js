@@ -98,6 +98,49 @@ class EventRepository {
     });
   }
 
+async updateEvent(eventId, updates) {
+  try {
+    const event = await Event.findByPk(eventId, {
+      include: ['Location'] // Inclure la relation Location
+    });
+    
+    if (!event) {
+      throw HttpErrors.NotFound('Événement non trouvé');
+    }
+
+    const updateData = {};
+
+    if (updates.title !== undefined) updateData.Title = updates.title;
+    if (updates.description !== undefined) updateData.Description = updates.description;
+    if (updates.priceMin !== undefined) updateData.MinPrice = updates.priceMin;
+    if (updates.priceMax !== undefined) updateData.MaxPrice = updates.priceMax;
+    if (updates.startDate !== undefined) updateData.StartingDate = updates.startDate;
+    if (updates.endDate !== undefined) updateData.EndDate = updates.endDate;
+    if (updates.reservationUrl !== undefined) updateData.BookingURL = updates.reservationUrl;
+    if (updates.categoryId !== undefined) updateData.CategoryID = updates.categoryId;
+
+   
+    if (updates.location !== undefined) {
+      updateData.Location = JSON.stringify(updates.location);
+    }
+
+    if (updates.photos && Array.isArray(updates.photos)) {
+      updateData.Photos = JSON.stringify(updates.photos);
+    }
+
+    if (Object.keys(updateData).length > 0) {
+      await event.update(updateData);
+    }
+    
+    return await this.transform(event);
+
+  } catch (err) {
+    console.error("Erreur dans eventRepository.updateEvent:", err);
+    throw err;
+  }
+}
+
+
   // Retourne tous les évenements qui ont étés approuvés
   async findByApprovalStatus(approved) {
     return await Event.findAll({
