@@ -1,9 +1,24 @@
 import express from "express";
 import commentaireRepository from "../repositories/commentaire.repository.js";
+import { guardAuthorizationJWT } from "../middlewares/authorization.jwt.js";
 
 const router = express.Router();
 
 router.get("/:eventId", retrieveAllForEvent);
+router.post("/", guardAuthorizationJWT, createCommentaire);
+
+async function createCommentaire(req, res, next) {
+  try {
+
+    var userId = req.auth.userId;
+    
+    const newCommentaire = await commentaireRepository.create(req.body, userId);
+    res.status(201).json(newCommentaire);
+  } catch (err) {
+    console.log(err);
+    return next(err);
+  }
+}
 
 async function retrieveAllForEvent(req, res, next) {
   try {
