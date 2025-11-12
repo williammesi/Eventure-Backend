@@ -23,7 +23,15 @@ const certificationsRepository = {
       await org.save();
     }
   }
-  
+  // If the target is an event, it is event.Approved
+  if (cert.TargetType === "event") {
+    const event = await Event.findByPk(cert.TargetID);
+    if (event) {
+      event.Approved = true; // set to 1 / true
+      await event.save();
+    }
+  }
+
   return cert;
 },
 
@@ -41,6 +49,13 @@ const certificationsRepository = {
       if (org) {
         org.Certified = false; // ensure it's 0 / false
         await org.save();
+      }
+    }
+    if (cert.TargetType === "event") {
+      const event = await Event.findByPk(cert.TargetID);
+      if (event) {
+        event.Approved = false; // ensure it's 0 / false
+        await event.save();
       }
     }
 
