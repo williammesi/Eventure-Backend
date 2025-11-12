@@ -1,5 +1,6 @@
 import CertificationRequest from "../models/CertificationRequest.js";
 import Organisation from "../models/Organisation.js";
+import Event from "../models/Event.js";
 
 const certificationsRepository = {
   async retrieveAll() {
