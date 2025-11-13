@@ -4,18 +4,30 @@ import userRepository from './user.repository.js';
 
 class SecurityQuestionsRepository {
 
-  async findByUserCredentials(username, email) {
+  async findByUserCredentials(username, email, showAnswer = false) {
 
     try {
     const user = await userRepository.retrieveByUsernameEmail(username, email);
     if (!user) {
       return null;
     }
-    return await SecretQuestion.findOne({
+    
+    const securityQuestion = await SecretQuestion.findOne({
       where: {
         ID : user.SecretQuestionID
       }
     });
+
+    if (!showAnswer) {
+      securityQuestion.Answer = undefined;
+    }
+
+    else {
+      securityQuestion.Answer = user.SecretQuestionAnswer;
+    }
+
+    return securityQuestion;
+
   } catch (err) {
     console.error("Error in findByUserCredentials:", err);
     throw err;
