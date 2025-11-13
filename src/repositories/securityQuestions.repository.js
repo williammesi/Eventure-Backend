@@ -13,7 +13,7 @@ class SecurityQuestionsRepository {
     }
     return await SecretQuestion.findOne({
       where: {
-        userId: user.id
+        ID : user.SecurityQuestionID
       }
     });
   } catch (err) {
