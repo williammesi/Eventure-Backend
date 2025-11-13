@@ -31,8 +31,8 @@ async function validateSecurityAnswer(req, res, next) {
             throw HttpErrors.BadRequest("Le nom d'utilisateur, l'email et la réponse doivent être fournis");
         }
 
-        // Find security question by user credentials
-        const securityQuestion = await securityQuestionsRepository.findByUserCredentials(username, email);
+        // Find security question by user credentials (with answer for validation)
+        const securityQuestion = await securityQuestionsRepository.findByUserCredentials(username, email, true);
 
         if (!securityQuestion) {
             throw HttpErrors.NotFound("Aucun compte trouvé avec ces identifiants");
