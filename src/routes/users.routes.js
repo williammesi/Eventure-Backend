@@ -1,4 +1,5 @@
 import express from "express";
+import jwt from "jsonwebtoken";
 import HttpErrors from "http-errors";
 
 import validator from "./../middlewares/validator.js";
@@ -11,6 +12,7 @@ const router = express.Router();
 
 //router.get('/', retrieveAll);
 router.post("/", usersValidators.postValidator(), validator, post);
+router.post("/reset-password", resetPassword);
 router.get("/:id", retrieveById);
 router.get("/:id/security-questions", retrieveSecurityQuestionsByCredentials);
 
@@ -53,6 +55,53 @@ async function retrieveSecurityQuestionsByCredentials(req, res, next) {
 
 } catch (err) {
     console.log(err);
+    return next(err);
+  }
+}
+
+async function resetPassword(req, res, next) {
+  try {
+    const { resetToken, newPassword } = req.body;
+
+    // Validate input
+    if (!resetToken || !newPassword) {
+      throw HttpErrors.BadRequest("Le token de réinitialisation et le nouveau mot de passe sont requis");
+    }
+
+    // Validate password strength (at least 8 characters)
+    if (newPassword.length < 8) {
+      throw HttpErrors.BadRequest("Le mot de passe doit contenir au moins 8 caractères");
+    }
+
+    // Verify and decode reset token
+    let decoded;
+    try {
+      decoded = jwt.verify(resetToken, process.env.JWT_TOKEN_SECRET, {
+        issuer: process.env.BASE_URL,
+        algorithms: ['HS256']
+      });
+    } catch (err) {
+      if (err.name === 'TokenExpiredError') {
+        throw HttpErrors.Unauthorized("Le token de réinitialisation a expiré");
+      }
+      throw HttpErrors.Unauthorized("Token de réinitialisation invalide");
+    }
+
+    // Validate token purpose
+    if (decoded.purpose !== 'password-reset') {
+      throw HttpErrors.Unauthorized("Token invalide pour la réinitialisation de mot de passe");
+    }
+
+    // Update user password
+    const user = await userRepository.updatePassword(decoded.userId, newPassword);
+
+    res.status(200).json({
+      message: "Mot de passe réinitialisé avec succès",
+      username: user.Username
+    });
+
+  } catch (err) {
+    console.error("Error in resetPassword:", err);
     return next(err);
   }
 }

@@ -117,6 +117,28 @@ class UserRepository {
     });
   }
 
+  async updatePassword(userId, newPassword) {
+    try {
+      const user = await this.retrieveById(userId);
+      if (!user) {
+        throw HttpErrors.NotFound('Utilisateur non trouvé');
+      }
+
+      // Hash the new password
+      const passwordHash = await argon.hash(newPassword);
+
+      // Update user password
+      await user.update({
+        Password: passwordHash
+      });
+
+      return user;
+    } catch (err) {
+      console.error("Error in updatePassword:", err);
+      throw err;
+    }
+  }
+
   async updateOrganisation(userId, updates) {
   try {
     const user = await this.retrieveById(userId);
