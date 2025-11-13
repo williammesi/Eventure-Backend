@@ -30,6 +30,24 @@ class UserRepository {
     return await argon.verify(user.Password, password);
   }
 
+
+  async retrieveByUsernameEmail(username, email) {
+    try{
+
+      const user = await User.findOne({
+      where: {
+        [Op.and]: [{ Username: username }, { Email: email }],
+      },
+    });
+
+    return user;
+
+    } catch (err) {
+      console.error("Error in retrieveByUsernameEmail:", err);
+      throw err;
+    }
+  }
+
   async create(user) {
     try {
       console.log("Payload reçu dans repository:", user);

@@ -4,6 +4,7 @@ import HttpErrors from "http-errors";
 import validator from "./../middlewares/validator.js";
 
 import userRepository from "../repositories/user.repository.js";
+import securityQuestionsRepository from "../repositories/securityQuestions.repository.js";
 import usersValidators from "../validators/users.validator.js";
 
 const router = express.Router();
@@ -11,6 +12,8 @@ const router = express.Router();
 //router.get('/', retrieveAll);
 router.post("/", usersValidators.postValidator(), validator, post);
 router.get("/:id", retrieveById);
+router.get("/:id/security-questions", retrieveSecurityQuestionsByCredentials);
+
 //router.put("/:id", usersValidators.updateOrganisationValidator(), validator);
 
 async function post(req, res, next) {
@@ -29,6 +32,30 @@ async function post(req, res, next) {
   }
 }
 
+async function retrieveSecurityQuestionsByCredentials(req, res, next) {
+  try {
+    const username = req.query.username || null;
+    const email = req.query.email || null;
+
+    if (!username || !email) {
+      throw HttpErrors.BadRequest(
+        "Le nom d'utilisateur et l'email doit être fourni"
+      );
+    }
+
+    const securityQuestion = await securityQuestionsRepository.findByUserCredentials(username, email);
+
+    if (!securityQuestion) {
+      throw HttpErrors.NotFound("Aucun compte trouvé avec ces identifiants");
+    }
+
+    res.status(200).json(securityQuestion);
+
+} catch (err) {
+    console.log(err);
+    return next(err);
+  }
+}
 
 router.put('/:id', async (req, res, next) => {
   try {

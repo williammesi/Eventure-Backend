@@ -12,6 +12,7 @@ const router = express.Router();
 
 router.get('/', retrieveAll);
 
+
 router.get('/:id', retrieveById);
 
 
