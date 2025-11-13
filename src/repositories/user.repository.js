@@ -52,16 +52,34 @@ class UserRepository {
     try {
       console.log("Payload reçu dans repository:", user);
 
-      // 1. Hash password
+      // 1. Check if username already exists
+      const existingUsername = await User.findOne({
+        where: { Username: user.Username }
+      });
+
+      if (existingUsername) {
+        throw HttpErrors.Conflict('Ce nom d\'utilisateur est déjà utilisé');
+      }
+
+      // 2. Check if email already exists
+      const existingEmail = await User.findOne({
+        where: { Email: user.Email }
+      });
+
+      if (existingEmail) {
+        throw HttpErrors.Conflict('Cet email est déjà utilisé');
+      }
+
+      // 3. Hash password
       const passwordHash = await argon.hash(user.Password);
       user.Password = passwordHash;
 
       console.log("Objet envoyé à Sequelize:", user);
 
-      // 2. Create user record
+      // 4. Create user record
       const createdUser = await User.create(user);
 
-      // 3. Create profile based on role
+      // 5. Create profile based on role
       switch (createdUser.RoleID) {
         case 1: // Client
           await clientRepository.create({
@@ -93,7 +111,7 @@ class UserRepository {
           break;
       }
 
-      // 4. Return the user (not the profile)
+      // 6. Return the user (not the profile)
       return createdUser;
     } catch (err) {
       console.error("Error in user repository create:", err);
