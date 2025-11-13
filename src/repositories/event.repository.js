@@ -125,7 +125,7 @@ if (updates.location !== undefined) {
   // Si l'événement a déjà une Location liée, on met à jour cette instance
   if (event.Location) {
     await event.Location.update({
-      Adresse: updates.location.Street,
+      Adress: updates.location.address,
       City: updates.location.City,
       Country: updates.location.Country,
       Province: updates.location.Province,
@@ -136,7 +136,7 @@ if (updates.location !== undefined) {
   } else {
     // sinon créer une nouvelle Location et l'associer
     const newLoc = await Location.create({
-      Adresse: updates.location.Street,
+      Address: updates.location.address,
       City: updates.location.City,
       Country: updates.location.Country,
       Province: updates.location.Province,
