@@ -45,15 +45,15 @@ async function retrieveSecurityQuestionsByCredentials(req, res, next) {
       );
     }
 
-    const securityQuestion = await securityQuestionsRepository.findByUserCredentials(username, email);
+    const securityQuestion =
+      await securityQuestionsRepository.findByUserCredentials(username, email);
 
     if (!securityQuestion) {
       throw HttpErrors.NotFound("Aucun compte trouvé avec ces identifiants");
     }
 
     res.status(200).json(securityQuestion);
-
-} catch (err) {
+  } catch (err) {
     console.log(err);
     return next(err);
   }
@@ -65,12 +65,16 @@ async function resetPassword(req, res, next) {
 
     // Validate input
     if (!resetToken || !newPassword) {
-      throw HttpErrors.BadRequest("Le token de réinitialisation et le nouveau mot de passe sont requis");
+      throw HttpErrors.BadRequest(
+        "Le token de réinitialisation et le nouveau mot de passe sont requis"
+      );
     }
 
-    // Validate password strength (at least 8 characters)
-    if (newPassword.length < 8) {
-      throw HttpErrors.BadRequest("Le mot de passe doit contenir au moins 8 caractères");
+    // Validate password strength (at least 6 characters)
+    if (newPassword.length < 6) {
+      throw HttpErrors.BadRequest(
+        "Le mot de passe doit contenir au moins 6 caractères"
+      );
     }
 
     // Verify and decode reset token
@@ -78,49 +82,55 @@ async function resetPassword(req, res, next) {
     try {
       decoded = jwt.verify(resetToken, process.env.JWT_TOKEN_SECRET, {
         issuer: process.env.BASE_URL,
-        algorithms: ['HS256']
+        algorithms: ["HS256"],
       });
     } catch (err) {
-      if (err.name === 'TokenExpiredError') {
+      if (err.name === "TokenExpiredError") {
         throw HttpErrors.Unauthorized("Le token de réinitialisation a expiré");
       }
       throw HttpErrors.Unauthorized("Token de réinitialisation invalide");
     }
 
     // Validate token purpose
-    if (decoded.purpose !== 'password-reset') {
-      throw HttpErrors.Unauthorized("Token invalide pour la réinitialisation de mot de passe");
+    if (decoded.purpose !== "password-reset") {
+      throw HttpErrors.Unauthorized(
+        "Token invalide pour la réinitialisation de mot de passe"
+      );
     }
 
     // Update user password
-    const user = await userRepository.updatePassword(decoded.userId, newPassword);
+    const user = await userRepository.updatePassword(
+      decoded.userId,
+      newPassword
+    );
 
     res.status(200).json({
       message: "Mot de passe réinitialisé avec succès",
-      username: user.Username
+      username: user.Username,
     });
-
   } catch (err) {
     console.error("Error in resetPassword:", err);
     return next(err);
   }
 }
 
-router.put('/:id', async (req, res, next) => {
+router.put("/:id", async (req, res, next) => {
   try {
     const userId = parseInt(req.params.id);
 
-    console.log('Route PUT /:id appelée');
-    console.log('userId:', userId);
-    console.log('req.body:', req.body);
-    
-    const updatedUser = await userRepository.updateOrganisation(userId, req.body);
-    
+    console.log("Route PUT /:id appelée");
+    console.log("userId:", userId);
+    console.log("req.body:", req.body);
+
+    const updatedUser = await userRepository.updateOrganisation(
+      userId,
+      req.body
+    );
+
     return res.status(200).json(updatedUser);
-    
   } catch (err) {
-    console.error('Erreur dans la route PUT /users/:id:', err);
-    
+    console.error("Erreur dans la route PUT /users/:id:", err);
+
     if (err.status === 404) {
       return res.status(404).json({ message: err.message });
     }
@@ -130,8 +140,8 @@ router.put('/:id', async (req, res, next) => {
     if (err.status === 409) {
       return res.status(409).json({ message: err.message });
     }
-    
-    return res.status(500).json({ message: err.message || 'Erreur serveur' });
+
+    return res.status(500).json({ message: err.message || "Erreur serveur" });
   }
 });
 
@@ -163,7 +173,6 @@ async function retrieveById(req, res, next) {
     // TODO: user = usersRepository.transform(user, req.options);
     user = await userRepository.transform(user);
     res.status(200).json(user);
-    
   } catch (err) {
     console.log(err);
     return next(err);
