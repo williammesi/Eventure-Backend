@@ -120,13 +120,37 @@ async updateEvent(eventId, updates) {
     if (updates.categoryId !== undefined) updateData.CategoryID = updates.categoryId;
 
    
-    if (updates.location !== undefined) {
-      updateData.Location = JSON.stringify(updates.location);
+    // après avoir récupéré `event` avec include: ['Location']
+if (updates.location !== undefined) {
+  // Si l'événement a déjà une Location liée, on met à jour cette instance
+  if (event.Location) {
+    await event.Location.update({
+      Adresse: updates.location.Street,
+      City: updates.location.City,
+      Country: updates.location.Country,
+      Province: updates.location.Province,
+      Street: updates.location.Street,
+      Latitude: updates.location.Latitude,
+      Longitude: updates.location.Longitude,
+    });
+  } else {
+    // sinon créer une nouvelle Location et l'associer
+    const newLoc = await Location.create({
+      Adresse: updates.location.Street,
+      City: updates.location.City,
+      Country: updates.location.Country,
+      Province: updates.location.Province,
+      Street: updates.location.Street,
+      Latitude: updates.location.Latitude,
+      Longitude: updates.location.Longitude,
+      EventId: event.id // ou lFK attendu selon le schema
+    });
+    // si ton ORM a une méthode setLocation :
+    if (typeof event.setLocation === 'function') {
+      await event.setLocation(newLoc);
     }
-
-    if (updates.photos && Array.isArray(updates.photos)) {
-      updateData.Photos = JSON.stringify(updates.photos);
-    }
+  }
+}
 
     if (Object.keys(updateData).length > 0) {
       await event.update(updateData);
