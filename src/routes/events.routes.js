@@ -4,7 +4,7 @@ import HttpErrors from "http-errors";
 import validator from "../middlewares/validator.js";
 
 import eventsRepository from "../repositories/event.repository.js";
-import certificationsRepository from "../repositories/certifications.repository.js";
+import certificationsRepository from "../repositories/certification.repository.js";
 
 import { authenticateToken } from "../middlewares/authorization.jwt.js";
 import eventsValidator from "../validators/events.validator.js";
