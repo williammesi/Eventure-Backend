@@ -4,6 +4,7 @@ import HttpErrors from "http-errors";
 import validator from "../middlewares/validator.js";
 
 import eventsRepository from "../repositories/event.repository.js";
+import certificationsRepository from "../repositories/certifications.repository.js";
 
 import { authenticateToken } from "../middlewares/authorization.jwt.js";
 import eventsValidator from "../validators/events.validator.js";
@@ -16,19 +17,17 @@ router.post("/", eventsValidator.postValidator(), create);
 router.delete("/:id", authenticateToken, deleteById);
 router.get("/:id", retrieveById);
 
-
-router.put('/:id', async (req, res, next) => {
+router.put("/:id", async (req, res, next) => {
   try {
     const eventId = parseInt(req.params.id);
-    console.log('Route PUT /events/:id appelée');
-    console.log('eventId:', eventId);
-    console.log('req.body:', req.body);
+    console.log("Route PUT /events/:id appelée");
+    console.log("eventId:", eventId);
+    console.log("req.body:", req.body);
 
     const updatedEvent = await eventsRepository.updateEvent(eventId, req.body);
     return res.status(200).json(updatedEvent);
-
   } catch (err) {
-    console.error('Erreur dans la route PUT /events/:id:', err);
+    console.error("Erreur dans la route PUT /events/:id:", err);
 
     if (err.status === 404) {
       return res.status(404).json({ message: err.message });
@@ -40,10 +39,9 @@ router.put('/:id', async (req, res, next) => {
       return res.status(409).json({ message: err.message });
     }
 
-    return res.status(500).json({ message: err.message || 'Erreur serveur' });
+    return res.status(500).json({ message: err.message || "Erreur serveur" });
   }
 });
-
 
 async function retrieveAll(req, res, next) {
   try {
@@ -112,6 +110,7 @@ async function deleteById(req, res, next) {
       );
     }
 
+    await certificationsRepository.deleteByEventId(id);
     await eventsRepository.delete(id);
     res.status(204).end();
   } catch (err) {
