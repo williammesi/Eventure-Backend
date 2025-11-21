@@ -18,6 +18,7 @@ import Commentaire from './Commentaire.js';
 import FollowedEvent from './FollowedEvent.js';
 import FollowedOrganisation from './FollowedOrganisation.js';
 import CertificationRequest from './CertificationRequest.js';
+import Report from './Report.js';
 
 User.belongsTo(Role, { foreignKey: 'RoleID' });
 Role.hasMany(User, { foreignKey: 'RoleID' });
@@ -71,6 +72,8 @@ Event.hasMany(Commentaire, { foreignKey: 'EventID' });
 Commentaire.belongsTo(User, { foreignKey: 'UserID' });
 User.hasMany(Commentaire, { foreignKey: 'UserID' });
 
+Report.belongsTo(User, { foreignKey: 'SenderID', as: 'Sender' });
+User.hasMany(Report, { foreignKey: 'SenderID', as: 'SentReports' });
 
 
 FollowedEvent.belongsTo(Event, { foreignKey: 'EventID' });
@@ -98,5 +101,6 @@ export {
   Commentaire,
   FollowedEvent,
   FollowedOrganisation,
-  CertificationRequest
+  CertificationRequest,
+  Report
 };
