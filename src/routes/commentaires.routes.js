@@ -2,12 +2,13 @@ import express from "express";
 import HttpErrors from "http-errors";
 import commentaireRepository from "../repositories/commentaire.repository.js";
 import { guardAuthorizationJWT } from "../middlewares/authorization.jwt.js";
+import { authenticateToken } from "../middlewares/authorization.jwt.js";
 
 const router = express.Router();
 
 router.get("/:eventId", retrieveAllForEvent);
-router.post("/", guardAuthorizationJWT, createCommentaire);
-router.delete("/:commentaireId", guardAuthorizationJWT, deleteCommentaire);
+router.post("/", authenticateToken, createCommentaire);
+router.delete("/:commentaireId", authenticateToken, deleteCommentaire);
 
 async function createCommentaire(req, res, next) {
   try {
