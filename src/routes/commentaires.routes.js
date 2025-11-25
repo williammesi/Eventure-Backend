@@ -7,8 +7,8 @@ import { authenticateToken } from "../middlewares/authorization.jwt.js";
 const router = express.Router();
 
 router.get("/:eventId", retrieveAllForEvent);
-router.post("/", authenticateToken, createCommentaire);
-router.delete("/:commentaireId", authenticateToken, deleteCommentaire);
+router.post("/", guardAuthorizationJWT, createCommentaire);
+router.delete("/:commentaireId", guardAuthorizationJWT, deleteCommentaire);
 
 async function createCommentaire(req, res, next) {
   try {
