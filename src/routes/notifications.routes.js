@@ -1,6 +1,6 @@
 import express from "express";
-import { guardAuthorizationJWT } from "../middlewares/authorization.jwt";
-import notificationRepository from "../repositories/notification.repository";
+import { guardAuthorizationJWT } from "../middlewares/authorization.jwt.js";
+import notificationRepository from "../repositories/notification.repository.js";
 
 const router = express.Router();
 
@@ -22,3 +22,5 @@ async function retrieveAllForUser(req, res, next) {
     return next(err);
   }
 }
+
+export default router;
