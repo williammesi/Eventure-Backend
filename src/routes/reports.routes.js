@@ -4,7 +4,7 @@ import { guardAuthorizationJWT } from "../middlewares/authorization.jwt.js";
 
 const router = express.Router();
 
-router.get("/", guardAuthorizationJWT, retrieveAll);
+router.get("/", retrieveAll);
 router.post("/", guardAuthorizationJWT, create);
 
 async function retrieveAll(req, res, next) {
