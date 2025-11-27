@@ -9,6 +9,7 @@ const router = express.Router();
 router.get("/:eventId", retrieveAllForEvent);
 router.post("/", guardAuthorizationJWT, createCommentaire);
 router.delete("/:commentaireId", guardAuthorizationJWT, deleteCommentaire);
+router.get("/findOne/:commentaireId", retrieveOne);
 
 async function createCommentaire(req, res, next) {
   try {
@@ -35,6 +36,19 @@ async function retrieveAllForEvent(req, res, next) {
     res.status(200).json(commentaires);
   } catch (err) {
     console.log(err);
+    return next(err);
+  }
+}
+
+async function retrieveOne(req, res, next) {
+  try {
+    const commentaireId = req.params.commentaireId;
+    const commentaire = await commentaireRepository.findById(commentaireId);
+    if (!commentaire) {
+      throw HttpErrors.NotFound("Commentaire non trouvé");
+    }
+    res.status(200).json(commentaire);
+  } catch (err) {
     return next(err);
   }
 }
