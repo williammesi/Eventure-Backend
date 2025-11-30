@@ -6,13 +6,13 @@ class LocationRepository {
     try {
       // Fetch coordinates if address information is provided
       if (
-        locationData.Adress &&
+        locationData.Address &&
         locationData.City &&
         locationData.Province &&
         locationData.Country
       ) {
         const coordinates = await geocodingService.getCoordinates(
-          locationData.Adress,
+          locationData.Address,
           locationData.City,
           locationData.Province,
           locationData.Country
@@ -37,7 +37,7 @@ class LocationRepository {
     try {
       // Fetch new coordinates if address information is being updated
       if (
-        locationData.Adress ||
+        locationData.Address ||
         locationData.City ||
         locationData.Province ||
         locationData.Country
@@ -45,7 +45,7 @@ class LocationRepository {
         const location = await this.findById(id);
         if (location) {
           const coordinates = await geocodingService.getCoordinates(
-            locationData.Adress || location.Adress,
+            locationData.Address || location.Address,
             locationData.City || location.City,
             locationData.Province || location.Province,
             locationData.Country || location.Country
