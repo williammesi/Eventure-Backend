@@ -109,72 +109,75 @@ class EventRepository {
     });
   }
 
-async updateEvent(eventId, updates) {
-  try {
-    const event = await Event.findByPk(eventId, {
-      include: ['Location'] // Inclure la relation Location
-    });
-    
-    if (!event) {
-      throw HttpErrors.NotFound('Événement non trouvé');
-    }
+  async updateEvent(eventId, updates) {
+    try {
+      const event = await Event.findByPk(eventId, {
+        include: ["Location"], // Inclure la relation Location
+      });
 
-    const updateData = {};
+      if (!event) {
+        throw HttpErrors.NotFound("Événement non trouvé");
+      }
 
-    if (updates.title !== undefined) updateData.Title = updates.title;
-    if (updates.description !== undefined) updateData.Description = updates.description;
-    if (updates.priceMin !== undefined) updateData.MinPrice = updates.priceMin;
-    if (updates.priceMax !== undefined) updateData.MaxPrice = updates.priceMax;
-    if (updates.startDate !== undefined) updateData.StartingDate = updates.startDate;
-    if (updates.endDate !== undefined) updateData.EndDate = updates.endDate;
-    if (updates.reservationUrl !== undefined) updateData.BookingURL = updates.reservationUrl;
-    if (updates.categoryId !== undefined) updateData.CategoryID = updates.categoryId;
+      const updateData = {};
 
-   
-    // après avoir récupéré `event` avec include: ['Location']
-if (updates.location !== undefined) {
-  // Si l'événement a déjà une Location liée, on met à jour cette instance
-  if (event.Location) {
-    await event.Location.update({
-      Adress: updates.location.address,
-      City: updates.location.City,
-      Country: updates.location.Country,
-      Province: updates.location.Province,
-      Street: updates.location.Street,
-      Latitude: updates.location.Latitude,
-      Longitude: updates.location.Longitude,
-    });
-  } else {
-    // sinon créer une nouvelle Location et l'associer
-    const newLoc = await Location.create({
-      Address: updates.location.address,
-      City: updates.location.City,
-      Country: updates.location.Country,
-      Province: updates.location.Province,
-      Street: updates.location.Street,
-      Latitude: updates.location.Latitude,
-      Longitude: updates.location.Longitude,
-      EventId: event.id // ou lFK attendu selon le schema
-    });
-    // si ton ORM a une méthode setLocation :
-    if (typeof event.setLocation === 'function') {
-      await event.setLocation(newLoc);
+      if (updates.title !== undefined) updateData.Title = updates.title;
+      if (updates.description !== undefined)
+        updateData.Description = updates.description;
+      if (updates.priceMin !== undefined)
+        updateData.MinPrice = updates.priceMin;
+      if (updates.priceMax !== undefined)
+        updateData.MaxPrice = updates.priceMax;
+      if (updates.startDate !== undefined)
+        updateData.StartingDate = updates.startDate;
+      if (updates.endDate !== undefined) updateData.EndDate = updates.endDate;
+      if (updates.reservationUrl !== undefined)
+        updateData.BookingURL = updates.reservationUrl;
+      if (updates.categoryId !== undefined)
+        updateData.CategoryID = updates.categoryId;
+
+      // après avoir récupéré `event` avec include: ['Location']
+      if (updates.location !== undefined) {
+        // Si l'événement a déjà une Location liée, on met à jour cette instance
+        if (event.Location) {
+          await event.Location.update({
+            Adress: updates.location.Adress,
+            City: updates.location.City,
+            Country: updates.location.Country,
+            Province: updates.location.Province,
+            Street: updates.location.Street,
+            Latitude: updates.location.Latitude,
+            Longitude: updates.location.Longitude,
+          });
+        } else {
+          // sinon créer une nouvelle Location et l'associer
+          const newLoc = await Location.create({
+            Adress: updates.location.Adress,
+            City: updates.location.City,
+            Country: updates.location.Country,
+            Province: updates.location.Province,
+            Street: updates.location.Street,
+            Latitude: updates.location.Latitude,
+            Longitude: updates.location.Longitude,
+            EventId: event.id, // ou lFK attendu selon le schema
+          });
+          // si ton ORM a une méthode setLocation :
+          if (typeof event.setLocation === "function") {
+            await event.setLocation(newLoc);
+          }
+        }
+      }
+
+      if (Object.keys(updateData).length > 0) {
+        await event.update(updateData);
+      }
+
+      return await this.transform(event);
+    } catch (err) {
+      console.error("Erreur dans eventRepository.updateEvent:", err);
+      throw err;
     }
   }
-}
-
-    if (Object.keys(updateData).length > 0) {
-      await event.update(updateData);
-    }
-    
-    return await this.transform(event);
-
-  } catch (err) {
-    console.error("Erreur dans eventRepository.updateEvent:", err);
-    throw err;
-  }
-}
-
 
   // Retourne tous les évenements qui ont étés approuvés
   async findByApprovalStatus(approved) {
