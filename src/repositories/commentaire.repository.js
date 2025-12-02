@@ -29,6 +29,21 @@ class CommentaireRepository {
     }
   }
 
+  async findById(id) {
+    return await Commentaire.findByPk(id);
+  }
+
+  async delete(commentaireId) {
+    try {
+      const deletedRowsCount = await Commentaire.destroy({
+        where: { ID: commentaireId },
+      });
+      return deletedRowsCount > 0;
+    } catch (error) {
+      throw error;
+    }
+  }
+
 }
 
 export default new CommentaireRepository();

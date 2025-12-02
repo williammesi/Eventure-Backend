@@ -26,16 +26,9 @@ class EventRepository {
       eventData.LocationID = location[0].dataValues.ID;
       const newEvent = await Event.create(eventData);
 
-      if (
-        (await User.findByPk(newEvent.dataValues.UserID).RoleID) ===
-        (await Role.findOne({
-          where: {
-            Name: "Client",
-          },
-        }).ID)
-      ) {
-        console.log("Creating certification request");
-
+      // Règle métier: seule un utilisateur rôle Client (RoleID = 1) génère une demande de certification pour son événement.
+      const user = await User.findByPk(newEvent.dataValues.UserID);
+      if (user && user.RoleID === 1) {
         await CertificationRequest.create({
           TargetType: "event",
           TargetID: newEvent.dataValues.ID,
@@ -177,7 +170,7 @@ class EventRepository {
         // Si l'événement a déjà une Location liée, on met à jour cette instance
         if (event.Location) {
           await event.Location.update({
-            Adress: updates.location.address,
+            Adress: updates.location.Adress,
             City: updates.location.City,
             Country: updates.location.Country,
             Province: updates.location.Province,
@@ -188,7 +181,7 @@ class EventRepository {
         } else {
           // sinon créer une nouvelle Location et l'associer
           const newLoc = await Location.create({
-            Address: updates.location.address,
+            Adress: updates.location.Adress,
             City: updates.location.City,
             Country: updates.location.Country,
             Province: updates.location.Province,
