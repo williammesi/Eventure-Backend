@@ -77,7 +77,27 @@ class UsersValidators {
                 .trim()
                 .isLength({ min: 1, max: 20 })
                 .withMessage('Le numéro de téléphone doit être une chaîne valide de moins de 20 caractères'),
-            
+
+        ];
+    }
+
+    banValidator() {
+        return [
+            body('bannedUntil')
+                .exists()
+                .notEmpty()
+                .withMessage('bannedUntil is required')
+                .bail()
+                .isISO8601()
+                .withMessage('bannedUntil must be a valid ISO 8601 date')
+                .bail()
+                .custom((value) => {
+                    const date = new Date(value);
+                    if (date <= new Date()) {
+                        throw new Error('bannedUntil must be a future date');
+                    }
+                    return true;
+                })
         ];
     }
 }

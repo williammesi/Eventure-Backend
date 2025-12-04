@@ -15,6 +15,8 @@ const router = express.Router();
 router.post("/", usersValidators.postValidator(), validator, post);
 router.post("/reset-password", resetPassword);
 router.get("/search", guardAuthorizationJWT, search);
+router.patch("/:id/ban", guardAuthorizationJWT, usersValidators.banValidator(), validator, banUser);
+router.delete("/:id/ban", guardAuthorizationJWT, unbanUser);
 router.get("/:id", retrieveById);
 router.get("/:id/security-questions", retrieveSecurityQuestionsByCredentials);
 
@@ -202,6 +204,61 @@ async function retrieveById(req, res, next) {
     res.status(200).json(user);
   } catch (err) {
     console.log(err);
+    return next(err);
+  }
+}
+
+async function banUser(req, res, next) {
+  try {
+    const userRoleId = parseInt(req.auth.roleId);
+
+    // Only moderators (RoleID 3) can ban users
+    if (userRoleId !== 3) {
+      throw HttpErrors.Forbidden("Vous n'êtes pas autorisé à bannir des utilisateurs");
+    }
+
+    const userId = parseInt(req.params.id);
+    const { bannedUntil } = req.body;
+
+    // Check if the target user is a moderator
+    const targetUser = await userRepository.retrieveById(userId);
+    if (!targetUser) {
+      throw HttpErrors.NotFound("Utilisateur non trouvé");
+    }
+
+    if (targetUser.RoleID === 3) {
+      throw HttpErrors.Forbidden("Vous ne pouvez pas bannir un modérateur");
+    }
+
+    let user = await userRepository.banUser(userId, bannedUntil);
+    user = user.toJSON();
+    user = await userRepository.transform(user);
+
+    res.status(200).json(user);
+  } catch (err) {
+    console.error("Error in banUser:", err);
+    return next(err);
+  }
+}
+
+async function unbanUser(req, res, next) {
+  try {
+    const userRoleId = parseInt(req.auth.roleId);
+
+    // Only moderators (RoleID 3) can unban users
+    if (userRoleId !== 3) {
+      throw HttpErrors.Forbidden("Vous n'êtes pas autorisé à débannir des utilisateurs");
+    }
+
+    const userId = parseInt(req.params.id);
+
+    let user = await userRepository.unbanUser(userId);
+    user = user.toJSON();
+    user = await userRepository.transform(user);
+
+    res.status(200).json(user);
+  } catch (err) {
+    console.error("Error in unbanUser:", err);
     return next(err);
   }
 }

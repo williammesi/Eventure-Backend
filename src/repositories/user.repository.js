@@ -276,6 +276,44 @@ class UserRepository {
   }
 }
 
+  async banUser(userId, bannedUntil) {
+    try {
+      const user = await this.retrieveById(userId);
+      if (!user) {
+        throw HttpErrors.NotFound('Utilisateur non trouvé');
+      }
+
+      // Update user's BannedUntil field
+      await user.update({
+        BannedUntil: bannedUntil
+      });
+
+      return user;
+    } catch (err) {
+      console.error("Error in banUser:", err);
+      throw err;
+    }
+  }
+
+  async unbanUser(userId) {
+    try {
+      const user = await this.retrieveById(userId);
+      if (!user) {
+        throw HttpErrors.NotFound('Utilisateur non trouvé');
+      }
+
+      // Reset BannedUntil to default value
+      await user.update({
+        BannedUntil: "1970-01-01"
+      });
+
+      return user;
+    } catch (err) {
+      console.error("Error in unbanUser:", err);
+      throw err;
+    }
+  }
+
   generateJWT(userId, roleId) {
     const access = jwt.sign(
         { 
