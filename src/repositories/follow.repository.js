@@ -5,7 +5,7 @@ import organisationRepository from "./organisation.repository.js";
 
 class FollowRepository {
   async create(type, id, userID) {
-    if ((type = "event")) {
+    if (type == "event") {
       if (eventRepository.findById(id) != null) {
         FollowedEvent.create(
           {
@@ -17,7 +17,7 @@ class FollowRepository {
       } else {
         throw "Évènement invalide";
       }
-    } else if ((type = "organisation")) {
+    } else if (type == "organisation") {
       if (organisationRepository.findByUserId(id) != null) {
         FollowedOrganisation.create(
           {
@@ -33,7 +33,7 @@ class FollowRepository {
   }
 
   async delete(type, id, userID) {
-    if ((type = "event")) {
+    if (type == "event") {
       if ((await eventRepository.findById(id)) != null) {
         FollowedEvent.destroy({
           where: {
@@ -44,7 +44,7 @@ class FollowRepository {
       } else {
         throw "Évènement invalide";
       }
-    } else if ((type = "organisation")) {
+    } else if (type == "organisation") {
       if ((await organisationRepository.findByUserId(id)) != null) {
         FollowedOrganisation.destroy({
           where: {

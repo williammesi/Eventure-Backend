@@ -28,7 +28,8 @@ async function fetchByUserID(req, res, next) {
 
 async function create(req, res, next) {
   try {
-    const { type, id } = req.params;
+    const type = req.params.type;
+    const id = req.params.id;
 
     await followRepository.create(type, id, req.auth.userId);
 
