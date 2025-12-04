@@ -40,11 +40,12 @@ async function create(req, res, next) {
 
 async function remove(req, res, next) {
   try {
-    const { type, id } = req.params;
+    const type = req.params.type;
+    const id = req.params.id;
 
     await followRepository.delete(type, id, req.auth.userId);
 
-    res.status(200).end();
+    res.status(204).end();
   } catch (error) {
     return next(error);
   }

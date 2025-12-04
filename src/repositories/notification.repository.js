@@ -1,7 +1,8 @@
+import Client from "../models/Client.js";
 import FollowedEvent from "../models/FollowedEvent.js";
 import FollowedOrganisation from "../models/FollowedOrganisation.js";
 import Notification from "../models/Notification.js";
-import NotificationType from "../models/NotificationType.js";
+import Organisation from "../models/Organisation.js";
 import User from "../models/User.js";
 
 class NotificationRepository {
@@ -9,14 +10,21 @@ class NotificationRepository {
     return await Notification.findAll({
       where: { UserID: userId },
       include: [
-        /*{
-          model: NotificationType,
-          attributes: ["ID", "Name"],
-        },*/
         {
           as: "Sender",
           model: User,
-          attributes: ["ID", "RoleID"],
+          include: [
+            {
+              model: Client,
+              attributes: ["FirstName", "LastName"],
+              required: false,
+            },
+            {
+              model: Organisation,
+              attributes: ["Name"],
+              required: false,
+            },
+          ],
         },
       ],
     });
