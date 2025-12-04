@@ -157,6 +157,51 @@ class UserRepository {
     }
   }
 
+  async search(query) {
+    try {
+      if (!query || query.trim().length === 0) {
+        return [];
+      }
+
+      const searchPattern = `%${query}%`;
+
+      // Search in User table (Username, Email)
+      const users = await User.findAll({
+        where: {
+          [Op.or]: [
+            { Username: { [Op.like]: searchPattern } },
+            { Email: { [Op.like]: searchPattern } }
+          ]
+        }
+      });
+
+      // Search in Client table (FirstName, LastName)
+      const clients = await clientRepository.searchByName(searchPattern);
+
+      // Search in Organisation table (Name)
+      const organisations = await organisationRepository.searchByName(searchPattern);
+
+      // Combine all matching user IDs
+      const userIds = new Set([
+        ...users.map(u => u.ID),
+        ...clients.map(c => c.UserID),
+        ...organisations.map(o => o.UserID)
+      ]);
+
+      // Fetch and transform all matching users
+      const matchedUsers = await User.findAll({
+        where: { ID: Array.from(userIds) }
+      });
+
+      return await Promise.all(
+        matchedUsers.map(u => this.transform(u.toJSON()))
+      );
+    } catch (err) {
+      console.error("Error in search:", err);
+      throw err;
+    }
+  }
+
   async updateOrganisation(userId, updates) {
   try {
     const user = await this.retrieveById(userId);
