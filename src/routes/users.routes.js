@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import HttpErrors from "http-errors";
 
 import validator from "./../middlewares/validator.js";
+import { guardAuthorizationJWT } from "../middlewares/authorization.jwt.js";
 
 import userRepository from "../repositories/user.repository.js";
 import securityQuestionsRepository from "../repositories/securityQuestions.repository.js";
@@ -13,6 +14,9 @@ const router = express.Router();
 //router.get('/', retrieveAll);
 router.post("/", usersValidators.postValidator(), validator, post);
 router.post("/reset-password", resetPassword);
+router.get("/search", guardAuthorizationJWT, search);
+router.patch("/:id/ban", guardAuthorizationJWT, usersValidators.banValidator(), validator, banUser);
+router.delete("/:id/ban", guardAuthorizationJWT, unbanUser);
 router.get("/:id", retrieveById);
 router.get("/:id/security-questions", retrieveSecurityQuestionsByCredentials);
 
@@ -114,6 +118,32 @@ async function resetPassword(req, res, next) {
   }
 }
 
+async function search(req, res, next) {
+  try {
+    const userRoleId = parseInt(req.auth.roleId);
+
+    // Only moderators (RoleID 3) can search users
+    if (userRoleId !== 3) {
+      throw HttpErrors.Forbidden(
+        "Vous n'êtes pas autorisé à effectuer cette recherche"
+      );
+    }
+
+    const query = req.query.q;
+
+    if (!query) {
+      throw HttpErrors.BadRequest("Query parameter 'q' is required");
+    }
+
+    // search() already returns transformed users
+    const users = await userRepository.search(query);
+    res.status(200).json(users);
+  } catch (err) {
+    console.error("Error in search:", err);
+    return next(err);
+  }
+}
+
 router.put("/:id", async (req, res, next) => {
   try {
     const userId = parseInt(req.params.id);
@@ -170,11 +200,65 @@ async function retrieveById(req, res, next) {
       throw HttpErrors.NotFound();
     }
     user = user.toJSON();
-    // TODO: user = usersRepository.transform(user, req.options);
     user = await userRepository.transform(user);
     res.status(200).json(user);
   } catch (err) {
     console.log(err);
+    return next(err);
+  }
+}
+
+async function banUser(req, res, next) {
+  try {
+    const userRoleId = parseInt(req.auth.roleId);
+
+    // Only moderators (RoleID 3) can ban users
+    if (userRoleId !== 3) {
+      throw HttpErrors.Forbidden("Vous n'êtes pas autorisé à bannir des utilisateurs");
+    }
+
+    const userId = parseInt(req.params.id);
+    const { bannedUntil } = req.body;
+
+    // Check if the target user is a moderator
+    const targetUser = await userRepository.retrieveById(userId);
+    if (!targetUser) {
+      throw HttpErrors.NotFound("Utilisateur non trouvé");
+    }
+
+    if (targetUser.RoleID === 3) {
+      throw HttpErrors.Forbidden("Vous ne pouvez pas bannir un modérateur");
+    }
+
+    let user = await userRepository.banUser(userId, bannedUntil);
+    user = user.toJSON();
+    user = await userRepository.transform(user);
+
+    res.status(200).json(user);
+  } catch (err) {
+    console.error("Error in banUser:", err);
+    return next(err);
+  }
+}
+
+async function unbanUser(req, res, next) {
+  try {
+    const userRoleId = parseInt(req.auth.roleId);
+
+    // Only moderators (RoleID 3) can unban users
+    if (userRoleId !== 3) {
+      throw HttpErrors.Forbidden("Vous n'êtes pas autorisé à débannir des utilisateurs");
+    }
+
+    const userId = parseInt(req.params.id);
+
+    let user = await userRepository.unbanUser(userId);
+    user = user.toJSON();
+    user = await userRepository.transform(user);
+
+    res.status(200).json(user);
+  } catch (err) {
+    console.error("Error in unbanUser:", err);
     return next(err);
   }
 }

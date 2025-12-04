@@ -157,6 +157,51 @@ class UserRepository {
     }
   }
 
+  async search(query) {
+    try {
+      if (!query || query.trim().length === 0) {
+        return [];
+      }
+
+      const searchPattern = `%${query}%`;
+
+      // Search in User table (Username, Email)
+      const users = await User.findAll({
+        where: {
+          [Op.or]: [
+            { Username: { [Op.like]: searchPattern } },
+            { Email: { [Op.like]: searchPattern } }
+          ]
+        }
+      });
+
+      // Search in Client table (FirstName, LastName)
+      const clients = await clientRepository.searchByName(searchPattern);
+
+      // Search in Organisation table (Name)
+      const organisations = await organisationRepository.searchByName(searchPattern);
+
+      // Combine all matching user IDs
+      const userIds = new Set([
+        ...users.map(u => u.ID),
+        ...clients.map(c => c.UserID),
+        ...organisations.map(o => o.UserID)
+      ]);
+
+      // Fetch and transform all matching users
+      const matchedUsers = await User.findAll({
+        where: { ID: Array.from(userIds) }
+      });
+
+      return await Promise.all(
+        matchedUsers.map(u => this.transform(u.toJSON()))
+      );
+    } catch (err) {
+      console.error("Error in search:", err);
+      throw err;
+    }
+  }
+
   async updateOrganisation(userId, updates) {
   try {
     const user = await this.retrieveById(userId);
@@ -230,6 +275,44 @@ class UserRepository {
     throw err;
   }
 }
+
+  async banUser(userId, bannedUntil) {
+    try {
+      const user = await this.retrieveById(userId);
+      if (!user) {
+        throw HttpErrors.NotFound('Utilisateur non trouvé');
+      }
+
+      // Update user's BannedUntil field
+      await user.update({
+        BannedUntil: bannedUntil
+      });
+
+      return user;
+    } catch (err) {
+      console.error("Error in banUser:", err);
+      throw err;
+    }
+  }
+
+  async unbanUser(userId) {
+    try {
+      const user = await this.retrieveById(userId);
+      if (!user) {
+        throw HttpErrors.NotFound('Utilisateur non trouvé');
+      }
+
+      // Reset BannedUntil to default value
+      await user.update({
+        BannedUntil: "1970-01-01"
+      });
+
+      return user;
+    } catch (err) {
+      console.error("Error in unbanUser:", err);
+      throw err;
+    }
+  }
 
   generateJWT(userId, roleId) {
     const access = jwt.sign(

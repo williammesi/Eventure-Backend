@@ -30,6 +30,20 @@ async function login(req, res, next) {
             throw new HttpErrors.Unauthorized('Identifiants invalides');
         }
 
+        // Check if user is banned
+        if (user.BannedUntil) {
+            const bannedUntilDate = new Date(user.BannedUntil);
+            const today = new Date();
+
+            // Set time to start of day for proper date comparison
+            bannedUntilDate.setHours(0, 0, 0, 0);
+            today.setHours(0, 0, 0, 0);
+
+            if (bannedUntilDate >= today) {
+                throw new HttpErrors.Forbidden('Votre compte est banni jusqu\'au ' + bannedUntilDate.toLocaleDateString());
+            }
+        }
+
         const tokens = userRepository.generateJWT(user.ID, user.RoleID);  // Passez userId et roleId
 
         user = user.toJSON();
