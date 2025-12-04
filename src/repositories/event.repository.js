@@ -100,23 +100,6 @@ class EventRepository {
       where: { ID: id },
     });
 
-    let users = await notificationRepository.findUserNotificationList(
-      id,
-      eventData.UserID
-    );
-    notificationRepository.createMany(
-      users.filter((u) => u.source == "Event"),
-      2,
-      "Un évènement auquel vous êtes abonné à été modifié",
-      eventData.UserID
-    );
-    notificationRepository.createMany(
-      users.filter((u) => u.source == "Organisation"),
-      2,
-      "Un organisateur auquel vous êtes abonné à modifié un évènement",
-      eventData.UserID
-    );
-
     return updatedRowsCount > 0;
   }
 
@@ -199,6 +182,25 @@ class EventRepository {
 
       if (Object.keys(updateData).length > 0) {
         await event.update(updateData);
+
+        console.log("Notifications:");
+
+        let users = await notificationRepository.findUserNotificationList(
+          eventId,
+          event.dataValues.UserID
+        );
+        await notificationRepository.createMany(
+          users.filter((u) => u.source == "Event").map((u) => u.id),
+          "event",
+          "Un évènement auquel vous êtes abonné à été modifié",
+          event.dataValues.UserID
+        );
+        await notificationRepository.createMany(
+          users.filter((u) => u.source == "Organisation").map((u) => u.id),
+          "org",
+          "Un organisateur auquel vous êtes abonné à modifié un évènement",
+          event.dataValues.UserID
+        );
       }
 
       return await this.transform(event);

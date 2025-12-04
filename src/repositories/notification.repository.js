@@ -1,3 +1,4 @@
+import FollowedEvent from "../models/FollowedEvent.js";
 import FollowedOrganisation from "../models/FollowedOrganisation.js";
 import Notification from "../models/Notification.js";
 import NotificationType from "../models/NotificationType.js";
@@ -8,26 +9,31 @@ class NotificationRepository {
     return await Notification.findAll({
       where: { UserID: userId },
       include: [
-        {
+        /*{
           model: NotificationType,
           attributes: ["ID", "Name"],
-        },
+        },*/
         {
           as: "Sender",
           model: User,
-          attributes: ["ID", "Type"],
+          attributes: ["ID", "RoleID"],
         },
       ],
     });
   }
 
-  async createMany(usersIDs, typeID, content, senderID) {
+  async createMany(usersIDs, type, content, senderID) {
     usersIDs.forEach((id) => {
+      console.log(`UserID: ${id}`);
+      console.log(`Type: ${type}`);
+      console.log(`Content: ${content}`);
+      console.log(`senderID: ${senderID}`);
+
       Notification.create({
-        TypeID: typeID,
+        Type: type,
         Content: content,
         Date: Date.now(),
-        userID: id,
+        UserID: id,
         SenderID: senderID,
       });
     });
@@ -37,27 +43,34 @@ class NotificationRepository {
     let fromOrganisation = [];
     let fromEvent = [];
 
+    console.log(eventId);
+    console.log(organisationId);
+
     if (eventId != -1) {
       fromOrganisation = await FollowedOrganisation.findAll({
-        where: (OrganisationID = organisationId),
+        where: { OrganisationID: organisationId },
+        attributes: ["UserID"],
       });
     }
 
     if (organisationId != -1) {
       fromEvent = await FollowedEvent.findAll({
-        where: (EventId = eventId),
+        where: { EventId: eventId },
+        attributes: ["UserID"],
       });
     }
 
-    const result = [];
+    let result = [];
     for (let i = 0; i < fromEvent.length; i++) {
       if (result.indexOf(fromEvent[i]) == -1)
-        result.push({ id: fromEvent[i], source: "Event" });
+        result.push({ id: fromEvent[i].UserID, source: "Event" });
     }
     for (let i = 0; i < fromOrganisation.length; i++) {
       if (result.indexOf(fromOrganisation[i]) == -1)
-        result.push({ id: fromOrganisation[i], source: "Organisation" });
+        result.push({ id: fromOrganisation[i].UserID, source: "Organisation" });
     }
+    console.log(result);
+
     return result;
   }
 }

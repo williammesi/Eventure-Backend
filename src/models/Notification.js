@@ -9,13 +9,17 @@ const Notification = sequelize.define(
       primaryKey: true,
       autoIncrement: true,
     },
-    TypeID: {
+    /*TypeID: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
         model: "NotificationTypes",
         key: "ID",
       },
+    },*/
+    Type: {
+      type: DataTypes.ENUM("event", "org", "warning"),
+      allowNull: false,
     },
     Content: {
       type: DataTypes.STRING(255),
