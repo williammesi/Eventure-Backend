@@ -81,6 +81,28 @@ class NotificationRepository {
 
     return result;
   }
+
+  async deleteOne(id) {
+    try {
+      const deletedRowsCount = await Notification.destroy({
+        where: { ID: id },
+      });
+      return deletedRowsCount > 0;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async deleteAllforUser(userID) {
+    try {
+      const deletedRowsCount = await Notification.destroy({
+        where: { UserID: userID },
+      });
+      return deletedRowsCount > 0;
+    } catch (error) {
+      throw error;
+    }
+  }
 }
 
 export default new NotificationRepository();
