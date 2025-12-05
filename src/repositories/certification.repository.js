@@ -36,6 +36,16 @@ const certificationsRepository = {
       if (event) {
         event.Approved = true; // set to 1 / true
         await event.save();
+
+        let users = await notificationRepository.findUserNotificationList(
+          newEvent.dataValues.UserID
+        );
+        notificationRepository.createMany(
+          users.filter((u) => u.source == "Organisation"),
+          2,
+          "Un organisateur auquel vous êtes abonné à créé un évènement",
+          eventData.UserID
+        );
       }
     }
 

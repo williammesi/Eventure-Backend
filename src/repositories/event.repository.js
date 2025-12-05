@@ -6,7 +6,8 @@ import User from "../models/User.js";
 import Client from "../models/Client.js";
 import Organisation from "../models/Organisation.js";
 import geocodingService from "../services/geocoding.service.js";
-import { CertificationRequest } from "../models/index.js";
+import { CertificationRequest, Role } from "../models/index.js";
+import notificationRepository from "./notification.repository.js";
 
 class EventRepository {
   async create(eventData) {
@@ -33,6 +34,16 @@ class EventRepository {
           TargetID: newEvent.dataValues.ID,
           Status: "Pending",
         });
+      } else {
+        let users = await notificationRepository.findUserNotificationList(
+          newEvent.dataValues.UserID
+        );
+        notificationRepository.createMany(
+          users.filter((u) => u.source == "Organisation"),
+          2,
+          "Un organisateur auquel vous êtes abonné à créé un évènement",
+          eventData.UserID
+        );
       }
 
       return newEvent.dataValues;
@@ -88,6 +99,7 @@ class EventRepository {
     const [updatedRowsCount] = await Event.update(eventData, {
       where: { ID: id },
     });
+
     return updatedRowsCount > 0;
   }
 
@@ -170,6 +182,25 @@ class EventRepository {
 
       if (Object.keys(updateData).length > 0) {
         await event.update(updateData);
+
+        console.log("Notifications:");
+
+        let users = await notificationRepository.findUserNotificationList(
+          eventId,
+          event.dataValues.UserID
+        );
+        await notificationRepository.createMany(
+          users.filter((u) => u.source == "Event").map((u) => u.id),
+          "event",
+          "Un évènement auquel vous êtes abonné à été modifié",
+          event.dataValues.UserID
+        );
+        await notificationRepository.createMany(
+          users.filter((u) => u.source == "Organisation").map((u) => u.id),
+          "org",
+          "Un organisateur auquel vous êtes abonné à modifié un évènement",
+          event.dataValues.UserID
+        );
       }
 
       return await this.transform(event);
