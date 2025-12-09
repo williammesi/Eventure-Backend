@@ -1,0 +1,20 @@
+meta {
+  name: Follow
+  type: http
+  seq: 5
+}
+
+post {
+  url: http://localhost:5000/follows/event/1
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjI3LCJyb2xlSWQiOjEsImlhdCI6MTc2NDcxMzgxOCwiZXhwIjoxNzY0NzE3NDE4LCJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjUwMDAifQ.l3f_6ry_pg8PEminT7Wguddati52QGWHrj2lCiM6jm8
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
