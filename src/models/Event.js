@@ -52,7 +52,7 @@ const Event = sequelize.define('Event', {
     allowNull: false
   },
   Description: {
-    type: DataTypes.STRING(255),
+    type: DataTypes.STRING(1024),
     allowNull: false
   },
   BookingURL: {

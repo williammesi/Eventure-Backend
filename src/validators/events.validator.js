@@ -70,8 +70,8 @@ class EventsValidators {
         .withMessage("Description is required")
         .bail()
         .isString()
-        .isLength({ min: 3, max: 255 })
-        .withMessage("Description must be between 3 and 255 characters long"),
+        .isLength({ min: 3, max: 1024 })
+        .withMessage("Description must be between 3 and 1024 characters long"),
       body("BookingURL")
         .exists()
         .notEmpty()
