@@ -67,5 +67,5 @@ const Event = sequelize.define('Event', {
   tableName: 'Events',
   timestamps: false
 });
-
+//test comment
 export default Event;
